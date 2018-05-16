@@ -4,7 +4,12 @@
 -- @module  c
 -- @author  Speedit
 -- @release alpha; contains errors
-local c = {}
+local c = {}    -- package
+local Color = { -- item class
+    tuple = {0, 0, 0},
+    type = 'rgb',
+    alpha = 1
+}
 
 -- Site SASS styling parameter cache.
 -- @todo Cache mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged.
@@ -209,8 +214,10 @@ end
 -- @param tup Color tuple in HSL or RGB
 -- @param alp Alpha value range 0-1
 -- @return Color instance.
-function Color(tup, typ, alp)
+function Color:new(tup, typ, alp)
     local o = {}
+    setmetatable(o, self)
+    self.__index = self
     -- Validate color data tuple
     if type(tup) ~= 'table' or #tup ~= 3 then
         error('no color data provided')
@@ -241,7 +248,7 @@ end
 -- @param a alpha 0-1
 -- @return Color instance.
 function c.fromRgb(r, g, b, a)
-    return Color({ r, g, b }, 'rgb', a or 1);
+    return Color:new({ r, g, b }, 'rgb', a or 1);
 end
 
 -- Creation of HSL color instances.
@@ -251,7 +258,7 @@ end
 -- @param a Alpha channel.    0-1
 -- @return Color instance.    
 function c.fromHsl(h, s, l, a)
-    return Color({ h, s, l }, 'hsl', a or 1);
+    return Color:new({ h, s, l }, 'hsl', a or 1);
 end
 
 -- Parsing logic for color strings.
@@ -317,7 +324,7 @@ function c.parse(str)
     -- Error if string format is invalid
     else error('cannot parse' + str) end
     -- Pass data to color constructor
-    return Color(tup, typ, alp)
+    return Color:new(tup, typ, alp)
 end
 
 -- Color hexadecimal string output
@@ -348,9 +355,9 @@ end
 -- @return Hexadecimal 6-digit or HSLA color string.
 function Color:tostring()
     if self.alpha ~= 1 then
-        return self.hsl()
+        return self:hsl()
     else
-        return self.hex()
+        return self:hex()
     end
 end
 
@@ -376,7 +383,11 @@ end
 -- @param typ Color type for clone.
 -- @return New (clone) color instance.
 function clone(color, typ)
-    local c = Color({ color.tuple[1], color.tuple[2], color.tuple[3] }, color.alpha, color.type, color.alpha) -- new color
+    local c = Color:new(
+        { color.tuple[1], color.tuple[2], color.tuple[3] },
+        color.type,
+        color.alpha
+    ) -- new color
     convert(c, typ) -- conversion
     return c -- output
 end
@@ -515,7 +526,13 @@ function hslToRgb(hsl)
 end
 
 -- Post-processing for web color properties.
-local ops = { 'rotate', 'saturate', 'lighten' }
+-- @name Color:rotate
+-- @param mod Modifier 1 - max (100 by default)
+-- @name Color:saturate
+-- @param mod Modifier 1 - max (100 by default)
+-- @name Color:lighten
+-- @param mod Modifier 1 - max (100 by default)
+    local ops = { 'rotate', 'saturate', 'lighten' }
 for i, o in ipairs(ops) do
     if o == 'rotate' then
         local div = 360
@@ -526,13 +543,7 @@ for i, o in ipairs(ops) do
         local typ = 'percentage'
         local cap = limit
     end
-    -- @name Color:rotate
-    -- @param mod Modifier 1 - max (100 by default)
-    -- @name Color:saturate
-    -- @param mod Modifier 1 - max (100 by default)
-    -- @name Color:lighten
-    -- @param mod Modifier 1 - max (100 by default)
-    function Color[o](mod)
+    function Color:[o](mod)
         check(test, mod)
         local this = clone(self, 'hsl')
         this.tuple[i] = cap(self.tuple[i] * (mod / div), 1)
@@ -540,14 +551,48 @@ for i, o in ipairs(ops) do
     end
 end
 
--- Alpha modification for color processing.
+-- Color property getter-setter.
+-- @name Color:red
+-- @param val Red value to set.         1 - 255
+-- @name Color:green
+-- @param val Green value to set.       1 - 255
+-- @name Color:blue
+-- @param val Blue value to set.        1 - 255
+-- @name Color:hue
+-- @param val Hue value to set.         0 - 1
+-- @name Color:sat
+-- @param val Saturation value to set.  0 - 1
+-- @name Color:lum
+-- @param val Luminosity value to set.  0 - 1
+local props = { 'red', 'green', 'blue', 'hue', 'saturation', 'lightness' }
+for i, p in ipairs(props) do
+    local n = (i - 1) / 3
+    if i < 1 then
+        type = 'rgb'
+    else
+        type = 'hsl'
+    end
+    function Color:[p](val)
+        local this = clone(self, type)
+        if value then
+            check(type, val)
+            this.tuple[n] = value
+            return this
+        else
+            return this.tuple[n]
+        end
+    end
+end
+-- Alpha getter-setter for color compositing.
 -- @param mod Modifier 1 - max (100 by default)
 -- @return Color instance.
-function Color:alpha(mod)
-    check('alpha', mod)
-    -- Input modifier into color
-    self.alpha = limit(self.alpha * (mod / 100), 1)
-    return this
+function Color:alpha(val)
+    if value then
+        check('alpha', mod)
+        self.alpha = val
+    else
+        return self.alpha
+    end
 end
 
 -- Color additive mixing utility.
@@ -589,7 +634,7 @@ end
 -- Complementary color utility.
 -- @return Color instance.
 function Color:complement()
-    return self.rotate(180)
+    return self:rotate(180)
 end
 
 -- Color brightness testing.
@@ -661,9 +706,9 @@ c.params = (function()
         p[k] = null
     end
     -- Brightness conditionals for post-processing.
-    local page_bright = c.parse('$color-page').isBright()
-    local page_bright_90 = c.parse('$color-page').isBright(90)
-    local buttons_bright = c.parse('$color-buttons').isBright()
+    local page_bright = c.parse('$color-page'):isBright()
+    local page_bright_90 = c.parse('$color-page'):isBright(90)
+    local buttons_bright = c.parse('$color-buttons'):isBright()
     -- Derived opacity values
     local pi_bg_o = (function()
         if page_bright then return 90 else return 85 end
@@ -679,23 +724,23 @@ c.params = (function()
         end),
         color-page-border = (function()
             if page_bright then
-                return c.parse('$color-page').lighten(-20).tostring()
+                return c.parse('$color-page'):lighten(-20):tostring()
             else
-                return c.parse('$color-page').lighten(20).tostring()
+                return c.parse('$color-page'):lighten(20):tostring()
             end
         end)
         is-dark-wiki = (function()
             return not page_bright
         end),
         infobox-background =
-            c.parse('$color-page').mix('$color-links', pi_bg_o).tostring(),
+            c.parse('$color-page'):mix('$color-links', pi_bg_o):tostring(),
         infobox-section-header-background =
-            c.parse('$color-page').mix('$color-links', 75).tostring(),
+            c.parse('$color-page'):mix('$color-links', 75):tostring(),
         color-button-highlight = (function()
             if buttons_bright then
-                return c.parse('$color-buttons').lighten(-20).tostring()
+                return c.parse('$color-buttons'):lighten(-20):tostring()
             else
-                return c.parse('$color-buttons').lighten(20).tostring()
+                return c.parse('$color-buttons'):lighten(20):tostring()
             end
         end),
         color-button-text = (function()
@@ -703,14 +748,14 @@ c.params = (function()
         end),
         dropdown-background-color = (function()
             if page_bright then
-                return c.parse('$color-page').mix('#fff', 90).tostring()
+                return c.parse('$color-page'):mix('#fff', 90):tostring()
             else if page_bright_90 then
                 return '#ffffff'
             else
-                return c.parse('$color-page').mix('#000', 90).tostring()
+                return c.parse('$color-page'):mix('#000', 90):tostring()
             end
         end)
-        dropdown-menu-highlight = c.parse('$color-links').alpha(10).tostring()
+        dropdown-menu-highlight = c.parse('$color-links'):composite(10):tostring()
     }
     -- Concatenate derived and default SASS parameters.
     for k, c in ipairs(d) do p[k] = c end
