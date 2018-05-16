@@ -589,7 +589,7 @@ end
 function Color:alpha(val)
     if value then
         check('alpha', mod)
-        self.alpha = val
+        self.alpha = val / 100
     else
         return self.alpha
     end
@@ -755,7 +755,7 @@ c.params = (function()
                 return c.parse('$color-page'):mix('#000', 90):tostring()
             end
         end)
-        dropdown-menu-highlight = c.parse('$color-links'):composite(10):tostring()
+        dropdown-menu-highlight = c.parse('$color-links'):alpha(10):tostring()
     }
     -- Concatenate derived and default SASS parameters.
     for k, c in ipairs(d) do p[k] = c end
