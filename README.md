@@ -1,6 +1,6 @@
-Stribunto library for embedded color processing in the FANDOM environment.
+Scribunto library for embedded color processing in the FANDOM environment.
 
-This Lua project is a **direct port** of https://dev.wikia.com/wiki/Colors - a JavaScrit library by Pecoes.
+This Lua project is a **direct port** of https://dev.wikia.com/wiki/Colors - a JavaScript library by Pecoes.
 
 A full author history of the original JS library is here:
 >https://dev.wikia.com/wiki/MediaWiki:Colors/code.js?action=history
@@ -10,7 +10,7 @@ A full author history of the original JS library is here:
 * `c.css` - template utility for FANDOM CSS $parameter support
 * `c.fromRgb` - color item creation from RGB tuple
 * `c.fromHsl` - color item creation from HSL tuple
-* `c.parse` - color parsing of any valid [CSS <color>](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) string
+* `c.parse` - color parsing of any valid [CSS color](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) string
 * `c.params` - table of FANDOM SASS colors for Lua modules
 
 # Color item methods
