@@ -1,6 +1,6 @@
 Scribunto library for embedded color processing in the FANDOM environment.
 
-This Lua project is a **direct port** of https://dev.wikia.com/wiki/Colors - a JavaScript library by Pecoes, with support for alpha values.
+This Lua project is a **direct port** of https://dev.wikia.com/wiki/Colors (a JavaScript library by Pecoes), with support for alpha values.
 
 A full author history of the original JS library is here:
 >https://dev.wikia.com/wiki/MediaWiki:Colors/code.js?action=history
@@ -46,7 +46,7 @@ The methods marked **\*** accept one optional modifier value parameter.
 * `Color:lighten`* - color lightness change by modifier (scaled by 100)
 * `Color:mix` - mixing with other color items or strings (scaled by 100, in reverse)
 ```lua
-c.parse('#000'):mix('#fff', 80) -- outputs '#ccc'
+c.parse('#000'):mix('#fff', 80):hex() -- outputs '#ccc'
 ```
 * `Color:invert` - inversion of color item
 * `Color:complement` - complement of color item
