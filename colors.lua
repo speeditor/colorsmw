@@ -6,9 +6,11 @@
 -- @release alpha; contains errors
 local c = {}
 
--- Site SASS styling parameters for FANDOM Open Source Library.
--- @todo cache mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged
---       sassParams = mw.site.sassParams
+-- Site SASS styling parameter cache.
+-- @todo Cache mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged.
+--       Currently, the module has static parameters for https://dev.wikia.com
+--
+-- local sassParams = mw.site.sassParams
 local sassParams = {
     background-dynamic = 'false',
     background-image = '',
@@ -26,7 +28,7 @@ local sassParams = {
     widthType = 0
 }
 
--- Web color RGB preset table
+-- Web color RGB preset table.
 local presets = {
     aliceblue = { 240, 248, 255 },
     antiquewhite = { 250, 235, 215 },
@@ -189,8 +191,8 @@ local ranges = {
 }
 
 -- Boundary validation for color types.
--- @param t range type
--- @param n number to validate
+-- @param t Range type.
+-- @param n Number to validate.
 function check(t, n)
     local min = ranges[t][1] -- Boundary variables
     local max = ranges[t][2]
@@ -512,7 +514,7 @@ function hslToRgb(hsl)
     return { r * 255, g * 255, b * 255 }
 end
 
--- Post-processing for web colors.
+-- Post-processing for web color properties.
 local ops = { 'rotate', 'saturate', 'lighten' }
 for i, o in ipairs(ops) do
     if o == 'rotate' then
@@ -533,22 +535,22 @@ for i, o in ipairs(ops) do
     function Color[o](mod)
         check(test, mod)
         local this = clone(self, 'hsl')
-        this.tuple[i] = cap(self.tuple[i] * (1 + mod) / div, 1)
+        this.tuple[i] = cap(self.tuple[i] * (mod / div), 1)
         return this
     end
 end
 
--- Alpha modification for color processing
+-- Alpha modification for color processing.
 -- @param mod Modifier 1 - max (100 by default)
 -- @return Color instance.
 function Color:alpha(mod)
     check('alpha', mod)
     -- Input modifier into color
-    self.alpha = limit(self.alpha * (1 + mod) / 100, 1)
+    self.alpha = limit(self.alpha * (mod / 100), 1)
     return this
 end
 
--- Color additive mixing utility
+-- Color additive mixing utility.
 -- @param other Module-compatible color string or instance.
 -- @param weight Color weight 0 - 100
 -- @return Color instance.
@@ -584,7 +586,7 @@ function Color:invert()
     return self -- output
 end
 
--- Complementary color utility
+-- Complementary color utility.
 -- @return Color instance.
 function Color:complement()
     return self.rotate(180)
@@ -649,58 +651,73 @@ end
 -- @todo use mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged
 c.params = (function()
     -- Cache SASS parameters for processing.
-    local s = sassParams
+    local p = sassParams
     -- Remove the unneeded parameters.
     local ext_params = {
         'oasisTypography',
         'widthType'
     }
-    for p, c in ipairs(extraneous_params) do
-        s[i] = null
+    for k, c in ipairs(extraneous_params) do
+        p[k] = null
     end
-    -- Post-processing the parameters.
-    s['page-opacity'] = tonumber(s['$page-opacity']/100)
-    -- Derived colors.
-    local pi_bg_o
-    if c.parse('$color-page').isBright() then
-        s['color-text'] = '#3a3a3a'
-        s['color-contrast'] = '#000000'
-        s['is-dark-wiki'] = false
-        pi_bg_o = 90
-    else
-        s['color-text'] = '#d5d4d4'
-        s['color-contrast'] = '#000000'
-        s['is-dark-wiki'] = true
-        pi_bg_o = 85
-    end
-    s['color-page-border'] =
-        c.parse('$color-page').mix(s['color-contrast'], 80).tostring()
-    s['infobox-background'] =
-        c.parse('$color-page').mix('$color-links', pi_bg_o).tostring()
-    s['infobox-section-header-background'] =
-        c.parse('$color-page').mix('$color-links', 75).tostring()
-    if c.parse('$color-buttons').isBright() then
-        s['color-button-highlight'] =
-            c.parse('$color-buttons').lighten(20).tostring()
-        s['color-button-text'] = '#000000'
-    else
-        s['color-button-highlight'] =
-            c.parse('$color-buttons').lighten(-20).tostring()
-        s['color-button-text'] = '#ffffff'
-    end
-    s['dropdown-background-color'] =
-        c.parse('$color-page').mix('#000', 90).tostring()
-	if c.parse('$color-page').isBright() then
-        s['dropdown-background-color'] = c.parse('$color-page').mix('#fff', 90).tostring()
-    end
-    if c.parse('$color-page').isBright(90) then
-		s['dropdown-background-color'] = '#fff'
-	end
-    s['dropdown-menu-highlight'] = c.parse('$color-links').alpha(10).tostring()
-    return s
+    -- Brightness conditionals for post-processing.
+    local page_bright = c.parse('$color-page').isBright()
+    local page_bright_90 = c.parse('$color-page').isBright(90)
+    local buttons_bright = c.parse('$color-buttons').isBright()
+    -- Derived opacity values
+    local pi_bg_o = (function()
+        if page_bright then return 90 else return 85 end
+    end)
+    -- Derived colors and variables.
+    local d = {
+        page-opacity = tonumber(s['$page-opacity']/100),
+        color-text = (function()
+            if page_bright then return '#3a3a3a' else return '#d5d4d4' end
+        end),
+        color-contrast = (function()
+            if page_bright then return '#000000' else return '#ffffff' end
+        end),
+        color-page-border = (function()
+            if page_bright then
+                return c.parse('$color-page').lighten(-20).tostring()
+            else
+                return c.parse('$color-page').lighten(20).tostring()
+            end
+        end)
+        is-dark-wiki = (function()
+            return not page_bright
+        end),
+        infobox-background =
+            c.parse('$color-page').mix('$color-links', pi_bg_o).tostring(),
+        infobox-section-header-background =
+            c.parse('$color-page').mix('$color-links', 75).tostring(),
+        color-button-highlight = (function()
+            if buttons_bright then
+                return c.parse('$color-buttons').lighten(-20).tostring()
+            else
+                return c.parse('$color-buttons').lighten(20).tostring()
+            end
+        end),
+        color-button-text = (function()
+            if buttons_bright then return '#000000' else return '#ffffff' end
+        end),
+        dropdown-background-color = (function()
+            if page_bright then
+                return c.parse('$color-page').mix('#fff', 90).tostring()
+            else if page_bright_90 then
+                return '#ffffff'
+            else
+                return c.parse('$color-page').mix('#000', 90).tostring()
+            end
+        end)
+        dropdown-menu-highlight = c.parse('$color-links').alpha(10).tostring()
+    }
+    -- Concatenate derived and default SASS parameters.
+    for k, c in ipairs(d) do p[k] = c end
+    -- Expose parameters as Lua table
+    return p
 end)
 
--- Export module
-return c
+return c -- export
 
 -- </nowiki>
