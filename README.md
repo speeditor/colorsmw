@@ -1,6 +1,6 @@
 Scribunto library for embedded color processing in the FANDOM environment.
 
-This Lua project is a **direct port** of https://dev.wikia.com/wiki/Colors - a JavaScript library by Pecoes.
+This Lua project is a **direct port** of https://dev.wikia.com/wiki/Colors - a JavaScript library by Pecoes, with support for alpha values.
 
 A full author history of the original JS library is here:
 >https://dev.wikia.com/wiki/MediaWiki:Colors/code.js?action=history
@@ -46,8 +46,8 @@ local colors = require("Dev:Colors")
 * `Color:complement` - complement of color item
 ## Output methods
 * `Color:hex` - hexadecimal RGB string output (`#RRGGBB(AA)`)
-* `Color:rgb` - [RGB(A) functional string output](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#rgb()_and_rgba())
-* `Color:hsl` - [HSL(A) functional string output](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#hsl()_and_hsla())
+* `Color:rgb` - [RGB(A) functional string output](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#rgb()_and_rgba()) (`rgb(#,#%,#%)`)
+* `Color:hsl` - [HSL(A) functional string output](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#hsl()_and_hsla()) (`hsl(#,#%,#%)`)
 * `Color:tostring` - hexadecimal or HSLA string string output (`#RRGGBB`/`hsla(#,#%,#%,#)`)
 ## Conditionals for color logic
 * `Color:isBright` - brightness boolean for color item
