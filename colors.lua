@@ -1,6 +1,6 @@
 -- <nowiki>
--- Colors library for web color processing & manipulation on FANDOM.
--- Supports HSL, RGB and hexadecimal color models.
+-- Colors library for embedded color processing & manipulation on FANDOM.
+-- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
 -- @author  Speedit
 -- @release alpha; contains errors
