@@ -337,7 +337,7 @@ function Color.hex()
     local hex = '#'
     local alp
     -- Hex string concatenation
-    for i, t in ipairs(this.tuple)
+    for i, t in ipairs(this.tuple) do
         -- Hexadecimal conversion
         if #string.format('%x', t) == 1 then -- leftpad
             hex == hex .. '0' .. string.format('%x', t)
