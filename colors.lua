@@ -4,16 +4,16 @@
 -- @module  c
 -- @author  Speedit
 -- @release alpha; contains errors
-local c = {}    -- package
-local Color = { -- item class
-    tuple = {0, 0, 0},
-    type = 'rgb',
-    alpha = 1
-}
+
+-- Library variables
+--- Package table
+local c = {}
+--- Color item class
+local Color = { tuple = {}, type = 'rgb', alpha = 1 }
 
 -- Site SASS styling parameter cache.
 -- @todo Cache mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged.
---       Currently, the module has static parameters for https://dev.wikia.com
+--       Currently, the module has static parameters for dev.wikia.com only.
 --
 -- local sassParams = mw.site.sassParams
 local sassParams = {
@@ -210,11 +210,12 @@ function check(t, n)
 end
 
 -- Instantiate a new Color instance.
+-- @name Color:new
 -- @param typ Type - color space 'hsl' or 'rgb'
 -- @param tup Color tuple in HSL or RGB
 -- @param alp Alpha value range 0-1
 -- @return Color instance.
-function Color:new(tup, typ, alp)
+function Color.new(tup, typ, alp)
     local o = {}
     setmetatable(o, self)
     self.__index = self
@@ -328,8 +329,9 @@ function c.parse(str)
 end
 
 -- Color hexadecimal string output
+-- @name Color:hex
 -- @return Hexadecimal color string.
-function Color:hex()
+function Color.hex()
     -- RGB conversion, variables
     local this = clone(self, 'rgb')
     local hex = '#'
@@ -352,8 +354,9 @@ function Color:hex()
 end
 
 -- Color string output as default.
+-- @name Color:tostring()
 -- @return Hexadecimal 6-digit or HSLA color string.
-function Color:tostring()
+function Color.tostring()
     if self.alpha ~= 1 then
         return self:hsl()
     else
@@ -384,7 +387,11 @@ end
 -- @return New (clone) color instance.
 function clone(color, typ)
     local c = Color:new(
-        { color.tuple[1], color.tuple[2], color.tuple[3] },
+        {
+            color.tuple[1],
+            color.tuple[2],
+            color.tuple[3]
+        },
         color.type,
         color.alpha
     ) -- new color
@@ -532,7 +539,7 @@ end
 -- @param mod Modifier 1 - max (100 by default)
 -- @name Color:lighten
 -- @param mod Modifier 1 - max (100 by default)
-    local ops = { 'rotate', 'saturate', 'lighten' }
+local ops = { 'rotate', 'saturate', 'lighten' }
 for i, o in ipairs(ops) do
     if o == 'rotate' then
         local div = 360
@@ -543,7 +550,7 @@ for i, o in ipairs(ops) do
         local typ = 'percentage'
         local cap = limit
     end
-    function Color:[o](mod)
+    function Color[o](mod)
         check(test, mod)
         local this = clone(self, 'hsl')
         this.tuple[i] = cap(self.tuple[i] * (mod / div), 1)
@@ -572,7 +579,7 @@ for i, p in ipairs(props) do
     else
         type = 'hsl'
     end
-    function Color:[p](val)
+    function Color[p](val)
         local this = clone(self, type)
         if value then
             check(type, val)
@@ -584,6 +591,7 @@ for i, p in ipairs(props) do
     end
 end
 -- Alpha getter-setter for color compositing.
+-- @name Color:alpha
 -- @param mod Modifier 1 - max (100 by default)
 -- @return Color instance.
 function Color:alpha(val)
@@ -596,10 +604,11 @@ function Color:alpha(val)
 end
 
 -- Color additive mixing utility.
+-- @name Color:mix
 -- @param other Module-compatible color string or instance.
 -- @param weight Color weight 0 - 100
 -- @return Color instance.
-function Color:mix(other, weight)
+function Color.mix(other, weight)
     -- Conversion for strings
     if type(other) == 'string' then
         other = c.parse(other)
@@ -621,8 +630,9 @@ function Color:mix(other, weight)
 end
 
 -- Color inversion utility.
+-- name Color:invert
 -- @return Color instance.
-function Color:invert()
+function Color.invert()
     local this = clone(self, 'rgb')
     -- Calculate 8-bit inverse of RGB tuple.
     for i, t in ipairs(self.tuple) do
@@ -632,15 +642,17 @@ function Color:invert()
 end
 
 -- Complementary color utility.
+-- @name Color:complement
 -- @return Color instance.
-function Color:complement()
+function Color.complement()
     return self:rotate(180)
 end
 
 -- Color brightness testing.
+-- @name Color:isBright
 -- @param lim Luminosity threshold (0.5 default).
 -- @return Boolean for luminosity beyond threshold.
-function Color:isBright(lim)
+function Color.isBright(lim)
     if lim then
         lim = tonumber(lim)/100
     else
@@ -651,8 +663,9 @@ function Color:isBright(lim)
 end
 
 -- Color status testing.
+-- @name Color:isColor
 -- @return Boolean for whether the instance is a color.
-function Color:isColor()
+function Color.isColor()
     convert(self, 'hsl')
     return clr.tuple[2] ~= 0 and -- sat   = not 0
            clr.tuple[3] ~= 0 and -- lum   = not 0

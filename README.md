@@ -6,7 +6,7 @@ A full author history of the original JS library is here:
 >https://dev.wikia.com/wiki/MediaWiki:Colors/code.js?action=history
 
 # Usage
-**Note:** The module is unpublished on FANDOM. **DON't** actually use it yet.
+**Note:** The module is unpublished on FANDOM. **DON'T** actually use it yet.
 ```lua
 local colors = require("Dev:Colors")
 ```
@@ -41,7 +41,7 @@ These methods retrieve or override color properties. They accept a optional valu
 * `Color:alpha` - alpha value (0-1)
 ## Processing methods
 The methods marked **\*** accept one optional modifier value parameter.
-* `Color:rotate`* - color rotation by degree*
+* `Color:rotate`* - color rotation by degree
 * `Color:saturate`* - color saturation change by modifier (scaled by 100)
 * `Color:lighten`* - color lightness change by modifier (scaled by 100)
 * `Color:mix` - mixing with other color items or strings (scaled by 100, in reverse)
