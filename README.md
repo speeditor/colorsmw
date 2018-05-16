@@ -1,4 +1,4 @@
-Stribunto library for embedded color processing in the FANDOM embedded environment.
+Stribunto library for embedded color processing in the FANDOM environment.
 
 This Lua project is a **direct port** of https://dev.wikia.com/wiki/Colors - a JavaScrit library by Pecoes.
 
