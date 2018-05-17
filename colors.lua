@@ -2,7 +2,7 @@
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
 -- @author  Speedit
--- @release alpha; contains errors
+-- @release beta; experimental, undergoing testing
 -- <nowiki>
 
 -- Library variables
@@ -743,7 +743,7 @@ c.params = (function()
     end)
     -- Derived colors and variables.
     local d = {
-        page-opacity = tonumber(s['$page-opacity']/100),
+        page-opacity = tonumber(s['$page-opacity'])/100,
         color-text = (function()
             if page_bright then return '#3a3a3a' else return '#d5d4d4' end
         end),
