@@ -340,9 +340,9 @@ function Color.hex()
     for i, t in ipairs(this.tuple) do
         -- Hexadecimal conversion
         if #string.format('%x', t) == 1 then -- leftpad
-            hex == hex .. '0' .. string.format('%x', t)
+            hex = hex .. '0' .. string.format('%x', t)
         else
-            hex == hex .. string.format('%x', t)
+            hex = hex .. string.format('%x', t)
         end
     end
     -- Alpha channel addition
@@ -371,7 +371,7 @@ for i, t in ipairs(spaces) do
     -- @return RGB color string.
     -- @name Color:hsl
     -- @return HSL color string.
-    function Color[t]
+    Color[t] = function()
         local this = clone(self, t)
         if this.alpha ~= 1 then
             return t + 'a(' + table.concat(color.tuple, ', ') + ', ' + color.alpha ')'
@@ -425,15 +425,15 @@ end
 -- @param typ Color type to output.
 -- @return Converted color instance.
 function convert(clr, typ)
-    if (clr.type !== typ) 
+    if clr.type ~= typ then
         clr.type   = typ
-        if typ === 'rgb' then
+        if typ == 'rgb' then
             clr.tuple = hslToRgb(clr.tuple)
         else
             clr.tuple = rgbToHsl(clr.tuple)
         end
     end
-    if clr.type === 'rgb' then
+    if clr.type == 'rgb' then
         for i, t in ipairs(clr.tuple) do
             clr.tuple[i] = math.floor(clr.tuple[i])
         end
@@ -456,8 +456,9 @@ function rgbToHsl(rgb)
     local h
     local s
     local m
-    if max === min then
-        h = s = 0 -- achromatic
+    if max == min then -- achromatic
+        local a = 0
+        h,s = a,a
     else
         local d = max - min
         if l > 0.5 then
@@ -468,9 +469,9 @@ function rgbToHsl(rgb)
         if max == r then
             if g < b then m = 6 else m = 0 end
             h = (g - b)  / d + m
-        else max == g
+        elseif max == g then
             h = (b - r)  / d + 2
-        else max == b
+        elseif max == b then
             h = (r - g)  / d + 4
         end
         h = h/6;
@@ -511,8 +512,9 @@ function hslToRgb(hsl)
     local g
     local b
     -- Achromatic handling
-    if s === 0 then
-        r = g = b = l
+    if s == 0 then
+        local a = 1
+        r,g,b = a,a,a
     -- RGB conversion
     else
         -- Assign first temporary variable
@@ -550,7 +552,7 @@ for i, o in ipairs(ops) do
         local typ = 'percentage'
         local cap = limit
     end
-    function Color[o](mod)
+    Color[o] = function(mod)
         check(test, mod)
         local this = clone(self, 'hsl')
         this.tuple[i] = cap(self.tuple[i] * (mod / div), 1)
@@ -579,7 +581,7 @@ for i, p in ipairs(props) do
     else
         type = 'hsl'
     end
-    function Color[p](val)
+    Color[p] = function(val)
         local this = clone(self, type)
         if value then
             check(type, val)
@@ -594,7 +596,7 @@ end
 -- @name Color:alpha
 -- @param mod Modifier 1 - max (100 by default)
 -- @return Color instance.
-function Color:alpha(val)
+function Color.alpha(val)
     if value then
         check('alpha', mod)
         self.alpha = val / 100
@@ -610,7 +612,7 @@ end
 -- @return Color instance.
 function Color.mix(other, weight)
     -- Conversion for strings
-    if type(other) == 'string' then
+    if not other.isColor then
         other = c.parse(other)
         convert(other, 'rgb')
     else
