@@ -719,6 +719,7 @@ function c.css(frame)
         return c.parse(output)
     else
         error('no styling supplied')
+    end
 end
 
 -- FANDOM color parameters.
