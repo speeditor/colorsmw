@@ -1,6 +1,7 @@
 -- Unit tests for colorsmw library.
 -- @module t
--- @see Results stored at https://dev.wikia.com/wiki/Module_talk:Colors/testcases
+-- @see Results stored at:
+--      https://dev.wikia.com/wiki/Module_talk:Colors/testcases
 local t = {
     wikia = {
         options = { nowiki = false },
