@@ -17,20 +17,20 @@ local Color = { tuple = {}, type = 'rgb', alpha = 1 }
 --
 -- local sassParams = mw.site.sassParams
 local sassParams = {
-    background-dynamic = 'false',
-    background-image = '',
-    background-image-height = '801',
-    background-image-width = '1700',
-    color-body = '#2c343d',
-    color-body-middle = '#2c343d',
-    color-buttons = '#00b7e0',
-    color-community-header = '#404a57',
-    color-header = '#404a57',
-    color-links = '#00c8e0',
-    color-page = '#39424d',
-    oasisTypography = 1,
-    page-opacity = '100',
-    widthType = 0
+    ['background-dynamic'] = 'false',
+    ['background-image'] = '',
+    ['background-image-height'] = '801',
+    ['background-image-width'] = '1700',
+    ['color-body'] = '#2c343d',
+    ['color-body-middle'] = '#2c343d',
+    ['color-buttons'] = '#00b7e0',
+    ['color-community-header'] = '#404a57',
+    ['color-header'] = '#404a57',
+    ['color-links'] = '#00c8e0',
+    ['color-page'] = '#39424d',
+    ['oasisTypography'] = 1,
+    ['page-opacity'] = '100',
+    ['widthType'] = 0
 }
 
 -- Web color RGB preset table.
@@ -687,7 +687,8 @@ end
 
 -- Color parameter access utility.
 -- @usage Direct access to SASS colors in templates.
--- @param frame Invocation frame as {{#invoke:colors|param|key}}.
+-- @param frame Invocation frame.
+-- @usage {{#invoke:colors|param|key}}
 -- @return Color string aligning with parameter.
 function c.wikia(frame)
     if type(frame.args) ~= 'nil' and type(frame.args[1]) ~= 'nil' then
@@ -706,7 +707,8 @@ function c.wikia(frame)
 end
 
 -- Color parameter parser for inline styling.
--- @param frame Invocation frame as {{#invoke:colors|css|styling}}
+-- @param frame Invocation frame.
+-- @usage {{#invoke:colors|css|styling}}
 -- @return CSS styling with $parameters substituted from c.wikia.
 function c.css(frame)
     -- Check if styling has been supplied
@@ -743,47 +745,47 @@ c.params = (function()
     end)
     -- Derived colors and variables.
     local d = {
-        page-opacity = tonumber(s['$page-opacity'])/100,
-        color-text = (function()
+        ['page-opacity'] = tonumber(s['$page-opacity'])/100,
+        ['color-text'] = (function()
             if page_bright then return '#3a3a3a' else return '#d5d4d4' end
         end),
-        color-contrast = (function()
+        ['color-contrast'] = (function()
             if page_bright then return '#000000' else return '#ffffff' end
         end),
-        color-page-border = (function()
+        ['color-page-border'] = (function()
             if page_bright then
                 return c.parse('$color-page'):lighten(-20):tostring()
             else
                 return c.parse('$color-page'):lighten(20):tostring()
             end
-        end)
-        is-dark-wiki = (function()
+        end),
+        ['is-dark-wiki'] = (function()
             return not page_bright
         end),
-        infobox-background =
+        ['infobox-background'] =
             c.parse('$color-page'):mix('$color-links', pi_bg_o):tostring(),
-        infobox-section-header-background =
+        ['infobox-section-header-background'] =
             c.parse('$color-page'):mix('$color-links', 75):tostring(),
-        color-button-highlight = (function()
+        ['color-button-highlight'] = (function()
             if buttons_bright then
                 return c.parse('$color-buttons'):lighten(-20):tostring()
             else
                 return c.parse('$color-buttons'):lighten(20):tostring()
             end
         end),
-        color-button-text = (function()
+        ['color-button-text'] = (function()
             if buttons_bright then return '#000000' else return '#ffffff' end
         end),
-        dropdown-background-color = (function()
-            if page_bright then
-                return c.parse('$color-page'):mix('#fff', 90):tostring()
-            elseif page_bright_90 then
+        ['dropdown-background-color'] = (function()
+            if page_bright_90 then
                 return '#ffffff'
+            elseif page_bright then
+                return c.parse('$color-page'):mix('#fff', 90):tostring()
             else
                 return c.parse('$color-page'):mix('#000', 90):tostring()
             end
-        end)
-        dropdown-menu-highlight = c.parse('$color-links'):alpha(10):tostring()
+        end),
+        ['dropdown-menu-highlight'] = c.parse('$color-links'):alpha(10):tostring()
     }
     -- Concatenate derived and default SASS parameters.
     for k, c in ipairs(d) do p[k] = c end
