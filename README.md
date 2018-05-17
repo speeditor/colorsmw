@@ -46,7 +46,7 @@ The methods marked **\*** accept one optional modifier value parameter.
 * `Color:lighten`* - color lightness change by modifier (scaled by 100)
 * `Color:mix` - mixing with other color items or strings (scaled by 100, in reverse)
 ```lua
-c.parse('#000'):mix('#fff', 80):hex() -- outputs '#ccc'
+c.parse('#fff'):mix('#000', 80):hex() -- outputs '#ccc'
 ```
 * `Color:invert` - inversion of color item
 * `Color:complement` - complement of color item
