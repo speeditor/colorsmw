@@ -273,7 +273,7 @@ function c.parse(str)
     -- Variable substitution
     if c.params and c.params[string.match(str, '^%$([%w-]+)$') or ''] then
         str = c.params[string.match(str, '^%$([%w-]+)$')]
-    else if sassParams[string.match(str, '^%$([%w-]+)$') or ''] then
+    elseif sassParams[string.match(str, '^%$([%w-]+)$') or ''] then
         str = sassParams[string.match(str, '^%$([%w-]+)$')]
     end
     -- Subroutine for RGB/HSL color data extraction
@@ -292,14 +292,14 @@ function c.parse(str)
         if #str == 4 then
             tup[1], tup[2], tup[3] = string.match(str, '^%#(%x)(%x)(%x)$')
             tup = { tup[1] .. tup[1], tup[2] .. tup[2], tup[3] .. tup[3] }
-        else if #str == 5 then
+        elseif #str == 5 then
             tup[1], tup[2], tup[3], alp = string.match(str, '^%#(%x)(%x)(%x)(%x)$')
             tup = { tup[1] .. tup[1], tup[2] .. tup[2], tup[3] .. tup[3] }
             alp = alp .. alp
-        else if #str == 7 then
+        elseif #str == 7 then
             tup[1], tup[2], tup[3] = string.match(str, '^%#(%x%x)(%x%x)(%x%x)$')
             alp = 1
-        else if #str == 9 then
+        elseif #str == 9 then
             tup[1], tup[2], tup[3], alp = string.match(str, '^%#(%x%x)(%x%x)(%x%x)(%x%x)$')
         end
         -- RGB conversion from hex format
@@ -311,15 +311,15 @@ function c.parse(str)
         end
         typ = 'rgb'
     -- Parsing patterns for RGB format
-    else if string.match(str, 'rgb[a]?%([%d,]%)') then
+    elseif string.match(str, 'rgb[a]?%([%d,]%)') then
         extract(string.match(str, '^rgba?%(([0-9.,]+)%)$'))
         typ = 'rgb'
     -- Parsing patterns for HSL format
-    else if string.match(str, 'hsl[a]?%([%d,]%)') then
+    elseif string.match(str, 'hsl[a]?%([%d,]%)') then
         extract(string.match(str, '^hsla?%(([0-9.,]+)%)$'))
         typ = 'hsl'
     -- Conversion of web color names to RGB
-    else if presets[str] then
+    elseif presets[str] then
         tup = presets[str]
         typ = 'rgb'
     -- Error if string format is invalid
@@ -414,7 +414,7 @@ end
 function circle(val, max)
     if val < 0 then        -- negative; below cycle minimum
         val = val + max
-    else if val > max then -- exceeds cycle maximum
+    elseif val > max then -- exceeds cycle maximum
         val = val - max
     end
     return val -- output
@@ -486,14 +486,14 @@ end
 function hueToRgb(p, q, t)
     if t < 0 then
         t = t + 1
-    else if t > 1 then
+    elseif t > 1 then
         t = t - 1
     end
     if t < 1/6 then
         return p + (q - p)  * 6 * t
-    else if t < 1/2 then
+    elseif t < 1/2 then
         return q
-    else if t < 2/3 then
+    elseif t < 2/3 then
         return p + (q - p)  * (2/3 - t)  * 6
     else
         return p
@@ -683,7 +683,7 @@ function c.wikia(frame)
         if c.params and c.params[key] then
             local val = c.params[key]
         -- Assign default parameter value.
-        else if sassParams[key] then
+        elseif sassParams[key] then
             local val = sassParams[key]
         end
         return val
@@ -764,7 +764,7 @@ c.params = (function()
         dropdown-background-color = (function()
             if page_bright then
                 return c.parse('$color-page'):mix('#fff', 90):tostring()
-            else if page_bright_90 then
+            elseif page_bright_90 then
                 return '#ffffff'
             else
                 return c.parse('$color-page'):mix('#000', 90):tostring()
