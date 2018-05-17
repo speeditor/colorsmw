@@ -21,11 +21,11 @@ The following keys are exposed in the module package:
 * `colors.params` - table of FANDOM SASS colors for Lua modules
 
 ***Example usage on a wiki:***
-```
+```html
 <div style="{{#invoke:colors|css|1px solid $color-community-header}}"></div>
 ```
 ***Rendered output on desktop:***
-```
+```html
 <div style="1px solid #404a57"></div>
 ```
 
