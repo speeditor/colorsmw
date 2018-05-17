@@ -40,10 +40,11 @@ These methods retrieve or override color properties. They accept a optional valu
 * `Color:lum` - luminosity value (0-1)
 * `Color:alpha` - alpha value (0-1)
 ## Processing methods
-The methods marked **\*** accept one optional modifier value parameter.
+The methods marked **\*** accept one optional modifier value parameter (-100 to 100).
 * `Color:rotate`* - color rotation by degree
-* `Color:saturate`* - color saturation change by modifier (scaled by 100)
-* `Color:lighten`* - color lightness change by modifier (scaled by 100)
+* `Color:saturate`* - color saturation change by modifier
+* `Color:lighten`* - color lightness change by modifier
+* `Color:opacify`* - color alpha change by modifier
 * `Color:mix` - mixing with other color items or strings (scaled by 100, in reverse)
 ```lua
 c.parse('#fff'):mix('#000', 80):hex() -- outputs '#ccc'
@@ -60,3 +61,9 @@ These methods return a valid CSS color string.
 These methods return a boolean for use in Lua logic.
 * `Color:isBright` - brightness status for color item (accepts optional 1-100 limit parameter)
 * `Color:isColor` - color saturation and visibility status for color item
+
+**N.B:** to test whether something is a color item or string, use `Color.isColor`.
+
+# TODO
+* Detailed documentation on FANDOM
+* Unit testing 
