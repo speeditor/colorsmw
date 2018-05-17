@@ -1,5 +1,5 @@
 -- <nowiki>
--- Colors library for embedded color processing & manipulation on FANDOM.
+-- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
 -- @author  Speedit
@@ -382,18 +382,18 @@ for i, t in ipairs(spaces) do
 end
 
 -- Cloning utility for color items.
--- @param color Color instance.
+-- @param clr Color instance.
 -- @param typ Color type for clone.
 -- @return New (clone) color instance.
-function clone(color, typ)
+function clone(clr, typ)
     local c = Color:new(
         {
-            color.tuple[1],
-            color.tuple[2],
-            color.tuple[3]
+            clr.tuple[1],
+            clr.tuple[2],
+            clr.tuple[3]
         },
-        color.type,
-        color.alpha
+        clr.type,
+        clr.alpha
     ) -- new color
     convert(c, typ) -- conversion
     return c -- output
@@ -421,21 +421,21 @@ function circle(val, max)
 end
 
 -- Color space conversion.
--- @param val Numeric value to cycle.
--- @param max Maximum value for cycle boundary.
--- @return Cyclical value.
-function convert(color, typ)
-    if (color.type !== typ) 
-        color.type   = typ
+-- @param clr Color instance.
+-- @param typ Color type to output.
+-- @return Converted color instance.
+function convert(clr, typ)
+    if (clr.type !== typ) 
+        clr.type   = typ
         if typ === 'rgb' then
-            color.tuple = hslToRgb(color.tuple)
+            clr.tuple = hslToRgb(clr.tuple)
         else
-            color.tuple = rgbToHsl(color.tuple)
+            clr.tuple = rgbToHsl(clr.tuple)
         end
     end
-    if color.type === 'rgb' then
-        for i, t in ipairs(color.tuple) do
-            color.tuple[i] = math.floor(color.tuple[i])
+    if clr.type === 'rgb' then
+        for i, t in ipairs(clr.tuple) do
+            clr.tuple[i] = math.floor(clr.tuple[i])
         end
     end
 end
@@ -606,7 +606,7 @@ end
 -- Color additive mixing utility.
 -- @name Color:mix
 -- @param other Module-compatible color string or instance.
--- @param weight Color weight 0 - 100
+-- @param weight Color weight of original (0 - 100).
 -- @return Color instance.
 function Color.mix(other, weight)
     -- Conversion for strings
@@ -679,8 +679,10 @@ end
 function c.wikia(frame)
     if type(frame.args) ~= 'nil' and type(frame.args[1]) ~= 'nil' then
         local key = mw.text.trim(frame.args[1])
+        -- Assign custom parameter value.
         if c.params and c.params[key] then
             local val = c.params[key]
+        -- Assign default parameter value.
         else if sassParams[key] then
             local val = sassParams[key]
         end
