@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.7.3
+-- @version 0.7.4
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release unstable; unit tests failure
@@ -192,9 +192,8 @@ local presets = {
 local ranges = {
     rgb = { 0, 255 },
     hsl = { 0, 1 },
-    alpha = { 0, 1 },
     percentage = { -100, 100 },
-    mix = { 0, 100 },
+    prop = { 0, 100 },
     degree = { -360, 360 }
 }
 
@@ -239,7 +238,7 @@ function Color.new(self, tup, typ, alp)
     for i, n in ipairs(tup) do
         check(typ, n)
     end
-    check('alpha', alp)
+    check('hsl', alp)
     -- Initialise properties
     o.tuple = tup
     o.type  = typ
@@ -553,23 +552,28 @@ end
 -- @name Color:blue
 -- @param val Blue value to set.        1 - 255
 -- @name Color:hue
--- @param val Hue value to set.         0 - 1
+-- @param val Hue value to set.         0 - 100
 -- @name Color:sat
--- @param val Saturation value to set.  0 - 1
+-- @param val Saturation value to set.  0 - 100
 -- @name Color:lum
--- @param val Luminosity value to set.  0 - 1
+-- @param val Luminosity value to set.  0 - 100
 local props = { 'red', 'green', 'blue', 'hue', 'saturation', 'lightness' }
 for i, p in ipairs(props) do
     local n = (i - 1) / 3
     if i < 1 then
-        typ = 'rgb'
+        local typ = 'rgb'
     else
-        typ = 'hsl'
+        local typ = 'hsl'
+        local chk = 'prop'
     end
     Color[p] = function(self, val)
         local this = clone(self, typ)
         if value then
-            check(typ, val)
+            if chk then
+                check(chk, val)
+            else
+                check(typ, val)
+            end
             this.tuple[n] = value
             return this
         else
@@ -583,7 +587,7 @@ end
 -- @return Color instance.
 function Color.alpha(self, val)
     if value then
-        check('alpha', val)
+        check('prop', val)
         self.alpha = val / 100
     else
         return self.alpha
@@ -643,7 +647,7 @@ function Color.mix(self, other, weight)
     end
     -- Mix weight, variables
     weight = weight or 50
-    check('mix', weight)
+    check('prop', weight)
     weight = weight/100
     local this = clone(self, 'rgb')
     -- Mixing logic
