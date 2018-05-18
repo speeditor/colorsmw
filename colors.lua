@@ -561,14 +561,14 @@ local props = { 'red', 'green', 'blue', 'hue', 'saturation', 'lightness' }
 for i, p in ipairs(props) do
     local n = (i - 1) / 3
     if i < 1 then
-        type = 'rgb'
+        typ = 'rgb'
     else
-        type = 'hsl'
+        typ = 'hsl'
     end
     Color[p] = function(self, val)
-        local this = clone(self, type)
+        local this = clone(self, typ)
         if value then
-            check(type, val)
+            check(typ, val)
             this.tuple[n] = value
             return this
         else
@@ -744,7 +744,7 @@ end
         'oasisTypography',
         'widthType'
     }
-    for k, c in ipairs(extraneous_params) do
+    for k, c in ipairs(ext_params) do
         p[k] = null
     end
     -- Brightness conditionals for post-processing.
