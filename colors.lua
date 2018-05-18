@@ -739,7 +739,6 @@ end
 -- @usage Direct access to SASS colors in Lua modules.
 -- @todo use mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged
 (function(p)
-    local p = sassParams
     -- Remove the unneeded parameters.
     local ext_params = {
         'oasisTypography',
@@ -758,7 +757,7 @@ end
     end)
     -- Derived colors and variables.
     local d = {
-        ['page-opacity'] = tonumber(s['$page-opacity'])/100,
+        ['page-opacity'] = tonumber(p['$page-opacity'])/100,
         ['color-text'] = (function()
             if page_bright then return '#3a3a3a' else return '#d5d4d4' end
         end),
