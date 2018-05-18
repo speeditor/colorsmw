@@ -201,7 +201,7 @@ local ranges = {
 -- Boundary validation for color types.
 -- @param t Range type.
 -- @param n Number to validate.
--- @raise 'color value $n out of $t bounds'
+-- @raise 'color value $n invalid or out of $t bounds'
 -- @return {bool} Validity of number.
 function check(t, n)
     local min = ranges[t][1] -- Boundary variables
@@ -210,7 +210,7 @@ function check(t, n)
     if type(n) ~= 'number' or n < min or n > max then
         return false
     else
-        error('color value "' .. n .. '" out of "' .. t .. '" bounds')
+        error('color value "' .. n .. '" invalid or out of "' .. t .. '" bounds')
     end
 end
 
