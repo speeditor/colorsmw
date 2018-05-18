@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.7.5
+-- @version 0.7.6
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release unstable; unit tests failure
@@ -595,8 +595,7 @@ function Color.alpha(self, val)
 end
 
 -- Post-processing for web color properties.
-(function()
-    local ops = { 'rotate', 'saturate', 'lighten' }
+(function (ops)
     for i, o in ipairs(ops) do
         if o == 'rotate' then
             local div = 360
@@ -620,7 +619,8 @@ end
             this.tuple[i] = cap(self.tuple[i] * (1 + mod / div), 1)
             return this
         end
-end)()
+    end
+end)({ 'rotate', 'saturate', 'lighten' })
 
 -- Opacification utility for color compositing.
 -- @name Color:opacify
