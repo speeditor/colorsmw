@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.6.7
+-- @version 0.7.0
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release beta; experimental, undergoing testing
@@ -738,7 +738,7 @@ end
 -- @name c.params
 -- @usage Direct access to SASS colors in Lua modules.
 -- @todo use mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged
-(function(p)
+c.params = (function(p)
     -- Remove the unneeded parameters.
     local ext_params = {
         'oasisTypography',
@@ -752,57 +752,32 @@ end
     local page_bright_90 = c.parse('$color-page'):isBright(90)
     local buttons_bright = c.parse('$color-buttons'):isBright()
     -- Derived opacity values
-    local pi_bg_o = (function()
-        if page_bright then return 90 else return 85 end
-    end)
+    local pi_bg_o = page_bright and 90 or 85
     -- Derived colors and variables.
     local d = {
         ['page-opacity'] = tonumber(p['page-opacity'])/100,
-        ['color-text'] = (function()
-            if page_bright then return '#3a3a3a' else return '#d5d4d4' end
-        end),
-        ['color-contrast'] = (function()
-            if page_bright then return '#000000' else return '#ffffff' end
-        end),
-        ['color-page-border'] = (function()
-            if page_bright then
-                return c.parse('$color-page'):lighten(-20):tostring()
-            else
-                return c.parse('$color-page'):lighten(20):tostring()
-            end
-        end),
-        ['is-dark-wiki'] = (function()
-            return not page_bright
-        end),
+        ['color-text'] = page_bright and '#3a3a3a' or '#d5d4d4',
+        ['color-contrast'] = page_bright and '#000000' or '#ffffff',
+        ['color-page-border'] = page_bright
+            and c.parse('$color-page'):lighten(-20):tostring()
+            or c.parse('$color-page'):lighten(20):tostring(),
+        ['is-dark-wiki'] = not page_bright,
         ['infobox-background'] =
             c.parse('$color-page'):mix('$color-links', pi_bg_o):tostring(),
         ['infobox-section-header-background'] =
             c.parse('$color-page'):mix('$color-links', 75):tostring(),
-        ['color-button-highlight'] = (function()
-            if buttons_bright then
-                return c.parse('$color-buttons'):lighten(-20):tostring()
-            else
-                return c.parse('$color-buttons'):lighten(20):tostring()
-            end
-        end),
-        ['color-button-text'] = (function()
-            if buttons_bright then return '#000000' else return '#ffffff' end
-        end),
-        ['dropdown-background-color'] = (function()
-            if page_bright_90 then
-                return '#ffffff'
-            elseif page_bright then
-                return c.parse('$color-page'):mix('#fff', 90):tostring()
-            else
-                return c.parse('$color-page'):mix('#000', 90):tostring()
-            end
-        end),
+        ['color-button-highlight'] = buttons_bright
+            and c.parse('$color-buttons'):lighten(-20):tostring()
+            or c.parse('$color-buttons'):lighten(20):tostring()
+        ['color-button-text'] = buttons_bright and '#000000' or '#ffffff',
+        ['dropdown-background-color'] =
+            page_bright_90 and '#ffffff'
+            or page_bright and c.parse('$color-page'):mix('#fff', 90):tostring()
+            or c.parse('$color-page'):mix('#000', 90):tostring(),
         ['dropdown-menu-highlight'] = c.parse('$color-links'):alpha(10):tostring()
     }
     -- Concatenate derived and default SASS parameters.
     for k, c in ipairs(d) do p[k] = c end
-    -- Expose parameters as Lua table
-    c.params = p
 end)(sassParams)
 
 return c -- export
