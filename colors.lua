@@ -207,10 +207,10 @@ function check(t, n)
     local min = ranges[t][1] -- Boundary variables
     local max = ranges[t][2]
     -- Boundary comparison
-    if type(n) ~= 'number' or n < min or n > max then
-        return false
-    else
-        error('color value "' .. n .. '" invalid or out of "' .. t .. '" bounds')
+    if type(n) ~= 'number' then
+        error('Colors: invalid color value input.')
+    elseif n < min or n > max then
+        error('Colors: color value "' .. n .. '" invalid or out of "' .. t .. '" bounds.')
     end
 end
 
@@ -228,12 +228,12 @@ function Color.new(self, tup, typ, alp)
     self.__index = self
     -- Validate color data tuple
     if type(tup) ~= 'table' or #tup ~= 3 then
-        error('no color data provided')
+        error('Colors: no color data provided.')
     end
     -- Validate color type
     local typdir = { rgb = 1, hsl = 1 }
     if type(typdir[typ]) == 'nil' then
-        error('invalid valid color type "' .. typ ..'" specified')
+        error('Colors: invalid valid color type "' .. typ ..'" specified.')
     end
     -- Validate color tuple numbers
     for i, n in ipairs(tup) do
@@ -273,7 +273,7 @@ end
 
 -- Parsing logic for color strings.
 -- @param str Valid color string.
--- @raise 'cannot parse $str'
+-- @raise 'Cannot parse $str'
 -- @see Color:new
 -- @return Color instance.
 function c.parse(str)
@@ -334,7 +334,7 @@ function c.parse(str)
         tup = presets[str]
         typ = 'rgb'
     -- Error if string format is invalid
-    else error('cannot parse' + str) end
+    else error('Colors: cannot parse "' + str'".') end
     -- Pass data to color constructor
     return Color:new(tup, typ, alp)
 end
@@ -713,7 +713,7 @@ function c.wikia(frame)
         end
         return val
     else
-        error('invalid SASS parameter name supplied')
+        error('Colors: invalid SASS parameter name supplied.')
     end
 end
 
@@ -730,7 +730,7 @@ function c.css(frame)
         local output = string.gsub(styles, '%$([%w-]+)', c.wikia)
         return c.parse(output)
     else
-        error('no styling supplied')
+        error('Colors: no styling supplied.')
     end
 end
 
