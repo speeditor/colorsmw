@@ -757,7 +757,7 @@ end
     end)
     -- Derived colors and variables.
     local d = {
-        ['page-opacity'] = tonumber(p['$page-opacity'])/100,
+        ['page-opacity'] = tonumber(p['page-opacity'])/100,
         ['color-text'] = (function()
             if page_bright then return '#3a3a3a' else return '#d5d4d4' end
         end),
