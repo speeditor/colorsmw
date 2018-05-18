@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.6.4
+-- @version 0.6.6
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release beta; experimental, undergoing testing
