@@ -591,31 +591,32 @@ function Color.alpha(self, val)
 end
 
 -- Post-processing for web color properties.
-local ops = { 'rotate', 'saturate', 'lighten' }
-for i, o in ipairs(ops) do
-    if o == 'rotate' then
-        local div = 360
-        local typ = 'degree'
-        local cap = circle
-    else 
-        local div = 100
-        local typ = 'percentage'
-        local cap = limit
-    end
-    -- @name Color:rotate
-    -- @param mod Modifier 0 - 360
-    -- @name Color:saturate
-    -- @param mod Modifier 0 - 100
-    -- @name Color:lighten
-    -- @param mod Modifier 0 - 100
-    -- @return Color instance.
-    Color[o] = function(self, mod)
-        check(typ, mod)
-        local this = clone(self, 'hsl')
-        this.tuple[i] = cap(self.tuple[i] * (1 + mod / div), 1)
-        return this
-    end
-end
+(function()
+    local ops = { 'rotate', 'saturate', 'lighten' }
+    for i, o in ipairs(ops) do
+        if o == 'rotate' then
+            local div = 360
+            local typ = 'degree'
+            local cap = circle
+        else 
+            local div = 100
+            local typ = 'percentage'
+            local cap = limit
+        end
+        -- @name Color:rotate
+        -- @param mod Modifier 0 - 360
+        -- @name Color:saturate
+        -- @param mod Modifier 0 - 100
+        -- @name Color:lighten
+        -- @param mod Modifier 0 - 100
+        -- @return Color instance.
+        Color[o] = function(self, mod)
+            check(typ, mod)
+            local this = clone(self, 'hsl')
+            this.tuple[i] = cap(self.tuple[i] * (1 + mod / div), 1)
+            return this
+        end
+end)()
 
 -- Opacification utility for color compositing.
 -- @name Color:opacify
@@ -623,7 +624,7 @@ end
 -- @return Color instance.
 function Color.opacify(self, mod)
     check('percentage', mod)
-    self.alpha = cap(self.tuple[i] * (1 + mod / 100), 1)
+    self.alpha = cap(self.alpha * (1 + mod / 100), 1)
     return self
 end
 
