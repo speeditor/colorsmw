@@ -1,4 +1,4 @@
-[![GitHub release](https://img.shields.io/github/release/speeditor/colorsmw.svg?style=flat-square)])(https://github.com/speeditor/colorsmw/releases) [![Lua 5.1.5](https://img.shields.io/badge/lua%20-5.1.5-blue.svg?style=flat-square)](https://dev.wikia.com/wiki/Lua_reference_manual) [![UnitTests](https://img.shields.io/badge/unit%20tests-failure-red.svg?style=flat-square)](https://dev.wikia.com/wiki/Module_talk:Colors/testcases)
+[![GitHub release](https://img.shields.io/github/release/speeditor/colorsmw.svg?style=flat-square)])(https://github.com/speeditor/colorsmw/releases) [![Lua](https://img.shields.io/badge/lua%20-5.1.5-blue.svg?style=flat-square)](https://dev.wikia.com/wiki/Lua_reference_manual) [![UnitTests](https://img.shields.io/badge/unit%20tests-failure-red.svg?style=flat-square)](https://dev.wikia.com/wiki/Module_talk:Colors/testcases)
 
 Scribunto library for embedded color processing in the FANDOM environment.
 
@@ -8,7 +8,7 @@ A full author history of the original JS library is here:
 >https://dev.wikia.com/wiki/MediaWiki:Colors/code.js?action=history
 
 # Usage
-**Note:** The module is unpublished on FANDOM. **DON'T** actually use it yet.
+**Note:** The module is unstable on FANDOM. **DON'T** actually use it yet.
 ```lua
 local colors = require("Dev:Colors")
 ```

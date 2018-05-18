@@ -1,7 +1,9 @@
 -- Unit tests for colorsmw library.
 -- @module t
--- @see Results stored at:
---      https://dev.wikia.com/wiki/Module_talk:Colors/testcases
+-- @usage  Dependent on UnitTests Scribunto module.
+--         https://dev.wikia.com/wiki/Global_Lua_Modules/UnitTests
+-- @see    Results stored at:
+--         https://dev.wikia.com/wiki/Module_talk:Colors/testcases
 local t = {
     wikia = {
         options = {
