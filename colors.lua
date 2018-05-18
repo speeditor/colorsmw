@@ -1,6 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
+-- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release beta; experimental, undergoing testing
 -- <nowiki>
@@ -9,6 +10,7 @@
 --- Package table
 local c = {}
 --- Color item class
+--- @classmod Color
 local Color = { tuple = {}, type = 'rgb', alpha = 1 }
 
 -- Site SASS styling parameter cache.
@@ -198,6 +200,8 @@ local ranges = {
 -- Boundary validation for color types.
 -- @param t Range type.
 -- @param n Number to validate.
+-- @raise 'color value out of bounds'
+-- @return {bool} Validity of number.
 function check(t, n)
     local min = ranges[t][1] -- Boundary variables
     local max = ranges[t][2]
@@ -210,12 +214,14 @@ function check(t, n)
 end
 
 -- Instantiate a new Color instance.
--- @name Color:new
+-- @function Color:new
 -- @param typ Type - color space 'hsl' or 'rgb'
 -- @param tup Color tuple in HSL or RGB
 -- @param alp Alpha value range 0-1
+-- @raise 'no color data provided'
+-- @raise 'no valid color type'
 -- @return Color instance.
-function Color.new(tup, typ, alp)
+function Color.new(self, tup, typ, alp)
     local o = {}
     setmetatable(o, self)
     self.__index = self
@@ -247,6 +253,7 @@ end
 -- @param g green 1-255
 -- @param b blue  1-255
 -- @param a alpha 0-1
+-- @see Color:new
 -- @return Color instance.
 function c.fromRgb(r, g, b, a)
     return Color:new({ r, g, b }, 'rgb', a or 1);
@@ -257,6 +264,7 @@ end
 -- @param s Saturation value. 0-1
 -- @param l Luminance value.  0-1
 -- @param a Alpha channel.    0-1
+-- @see Color:new
 -- @return Color instance.    
 function c.fromHsl(h, s, l, a)
     return Color:new({ h, s, l }, 'hsl', a or 1);
@@ -264,6 +272,8 @@ end
 
 -- Parsing logic for color strings.
 -- @param str Valid color string.
+-- @raise 'cannot parse' .. str
+-- @see Color:new
 -- @return Color instance.
 function c.parse(str)
     local typ
@@ -331,7 +341,7 @@ end
 -- Color hexadecimal string output
 -- @name Color:hex
 -- @return Hexadecimal color string.
-function Color.hex()
+function Color.hex(self)
     -- RGB conversion, variables
     local this = clone(self, 'rgb')
     local hex = '#'
@@ -356,7 +366,7 @@ end
 -- Color string output as default.
 -- @name Color:tostring()
 -- @return Hexadecimal 6-digit or HSLA color string.
-function Color.tostring()
+function Color.tostring(self)
     if self.alpha ~= 1 then
         return self:hsl()
     else
@@ -371,7 +381,7 @@ for i, t in ipairs(spaces) do
     -- @return RGB color string.
     -- @name Color:hsl
     -- @return HSL color string.
-    Color[t] = function()
+    Color[t] = function(self)
         local this = clone(self, t)
         if this.alpha ~= 1 then
             return t + 'a(' + table.concat(color.tuple, ', ') + ', ' + color.alpha ')'
@@ -555,7 +565,7 @@ for i, p in ipairs(props) do
     else
         type = 'hsl'
     end
-    Color[p] = function(val)
+    Color[p] = function(self, val)
         local this = clone(self, type)
         if value then
             check(type, val)
@@ -570,7 +580,7 @@ end
 -- @name Color:alpha
 -- @param mod Modifier 1 - max (100 by default)
 -- @return Color instance.
-function Color.alpha(val)
+function Color.alpha(self, val)
     if value then
         check('alpha', val)
         self.alpha = val / 100
@@ -598,7 +608,7 @@ for i, o in ipairs(ops) do
     -- @name Color:lighten
     -- @param mod Modifier 0 - 100
     -- @return Color instance.
-    Color[o] = function(mod)
+    Color[o] = function(self, mod)
         check(typ, mod)
         local this = clone(self, 'hsl')
         this.tuple[i] = cap(self.tuple[i] * (1 + mod / div), 1)
@@ -610,7 +620,7 @@ end
 -- @name Color:opacify
 -- @param mod Modifier -100 - 100 (100 by default)
 -- @return Color instance.
-function Color.opacify(mod)
+function Color.opacify(self, mod)
     check('percentage', mod)
     self.alpha = cap(self.tuple[i] * (1 + mod / 100), 1)
     return self
@@ -621,7 +631,7 @@ end
 -- @param other Module-compatible color string or instance.
 -- @param weight Color weight of original (0 - 100).
 -- @return Color instance.
-function Color.mix(other, weight)
+function Color.mix(self, other, weight)
     -- Conversion for strings
     if not other.isColor then
         other = c.parse(other)
@@ -645,7 +655,7 @@ end
 -- Color inversion utility.
 -- name Color:invert
 -- @return Color instance.
-function Color.invert()
+function Color.invert(self)
     local this = clone(self, 'rgb')
     -- Calculate 8-bit inverse of RGB tuple.
     for i, t in ipairs(self.tuple) do
@@ -657,7 +667,7 @@ end
 -- Complementary color utility.
 -- @name Color:complement
 -- @return Color instance.
-function Color.complement()
+function Color.complement(self)
     return self:rotate(180)
 end
 
@@ -665,7 +675,7 @@ end
 -- @name Color:isBright
 -- @param lim Luminosity threshold (0.5 default).
 -- @return Boolean for luminosity beyond threshold.
-function Color.isBright(lim)
+function Color.isBright(self, lim)
     if lim then
         lim = tonumber(lim)/100
     else
@@ -678,20 +688,20 @@ end
 -- Color status testing.
 -- @name Color:isColor
 -- @return Boolean for whether the instance is a color.
-function Color.isColor()
+function Color.isColor(self)
     convert(self, 'hsl')
     return clr.tuple[2] ~= 0 and -- sat   = not 0
            clr.tuple[3] ~= 0 and -- lum   = not 0
            clr.alpha ~= 0        -- alpha = not 0
 end
 
--- Color parameter access utility.
--- @usage Direct access to SASS colors in templates.
+-- Color SASS parameter access utility for templating.
 -- @param frame Invocation frame.
 -- @usage {{#invoke:colors|param|key}}
+-- @raise 'invalid SASS parameter name supplied'
 -- @return Color string aligning with parameter.
 function c.wikia(frame)
-    if type(frame.args) ~= 'nil' and type(frame.args[1]) ~= 'nil' then
+    if frame.args and frame.args[1] then
         local key = mw.text.trim(frame.args[1])
         -- Assign custom parameter value.
         if c.params and c.params[key] then
@@ -709,10 +719,11 @@ end
 -- Color parameter parser for inline styling.
 -- @param frame Invocation frame.
 -- @usage {{#invoke:colors|css|styling}}
+-- @raise 'no styling supplied'
 -- @return CSS styling with $parameters substituted from c.wikia.
 function c.css(frame)
     -- Check if styling has been supplied
-    if type(frame.args) ~= 'nil' and type(frame.args[1]) ~= 'nil' then
+    if frame.args and frame.args[1] then
         local styles = mw.text.trim(frame.args[1])
         -- Substitution of colors
         local output = string.gsub(styles, '%$([%w-]+)', c.wikia)
@@ -723,10 +734,10 @@ function c.css(frame)
 end
 
 -- FANDOM color parameters.
+-- @name c.params
 -- @usage Direct access to SASS colors in Lua modules.
 -- @todo use mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged
-c.params = (function()
-    -- Cache SASS parameters for processing.
+(function(p)
     local p = sassParams
     -- Remove the unneeded parameters.
     local ext_params = {
@@ -791,8 +802,8 @@ c.params = (function()
     -- Concatenate derived and default SASS parameters.
     for k, c in ipairs(d) do p[k] = c end
     -- Expose parameters as Lua table
-    return p
-end)
+    c.params = p
+end)(sassParams)
 
 return c -- export
 
