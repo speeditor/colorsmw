@@ -768,7 +768,7 @@ c.params = (function(p)
             c.parse('$color-page'):mix('$color-links', 75):tostring(),
         ['color-button-highlight'] = buttons_bright
             and c.parse('$color-buttons'):lighten(-20):tostring()
-            or c.parse('$color-buttons'):lighten(20):tostring()
+            or c.parse('$color-buttons'):lighten(20):tostring(),
         ['color-button-text'] = buttons_bright and '#000000' or '#ffffff',
         ['dropdown-background-color'] =
             page_bright_90 and '#ffffff'
