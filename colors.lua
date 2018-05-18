@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.6.1
+-- @version 0.6.2
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release beta; experimental, undergoing testing
@@ -201,7 +201,7 @@ local ranges = {
 -- Boundary validation for color types.
 -- @param t Range type.
 -- @param n Number to validate.
--- @raise 'color value out of bounds'
+-- @raise 'color value $n out of $t bounds'
 -- @return {bool} Validity of number.
 function check(t, n)
     local min = ranges[t][1] -- Boundary variables
@@ -210,7 +210,7 @@ function check(t, n)
     if type(n) ~= 'number' or n < min or n > max then
         return false
     else
-        error('color value out of bounds')
+        error('color value "' .. n .. '" out of "' .. t .. '" bounds')
     end
 end
 
@@ -233,7 +233,7 @@ function Color.new(self, tup, typ, alp)
     -- Validate color type
     local typdir = { rgb = 1, hsl = 1 }
     if type(typdir[typ]) == 'nil' then
-        error('no valid color type')
+        error('invalid valid color type "' .. typ ..'" specified')
     end
     -- Validate color tuple numbers
     for i, n in ipairs(tup) do
@@ -273,7 +273,7 @@ end
 
 -- Parsing logic for color strings.
 -- @param str Valid color string.
--- @raise 'cannot parse' .. str
+-- @raise 'cannot parse $str'
 -- @see Color:new
 -- @return Color instance.
 function c.parse(str)
@@ -291,9 +291,9 @@ function c.parse(str)
     function extract(str)
         for t in string.gmatch(str, '([^,]+)') do
             if #tup == 3 then
-                alpha = t
+                alpha = tonumber(t)
             else
-                tup[#tup+1] = t
+                tup[#tup+1] = tonumber(t)
             end
         end
     end
