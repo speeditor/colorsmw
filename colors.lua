@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.7.2
+-- @version 0.7.3
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release unstable; unit tests failure
@@ -579,7 +579,7 @@ for i, p in ipairs(props) do
 end
 -- Alpha getter-setter for color compositing.
 -- @name Color:alpha
--- @param mod Modifier 1 - max (100 by default)
+-- @param mod Modifier 0 - 100
 -- @return Color instance.
 function Color.alpha(self, val)
     if value then
@@ -604,11 +604,11 @@ end
             local cap = limit
         end
         -- @name Color:rotate
-        -- @param mod Modifier 0 - 360
+        -- @param mod Modifier -100 - 360
         -- @name Color:saturate
-        -- @param mod Modifier 0 - 100
+        -- @param mod Modifier -100 - 100
         -- @name Color:lighten
-        -- @param mod Modifier 0 - 100
+        -- @param mod Modifier -100 - 100
         -- @return Color instance.
         Color[o] = function(self, mod)
             check(typ, mod)
