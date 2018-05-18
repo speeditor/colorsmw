@@ -16,7 +16,7 @@ local t = {
         options = { nowiki = false },
         tests = {
             preprocess_equals_many = {
-                { 'background: $color-community-header', 'background: 1px solid #404a57' },
+                { 'background: $color-community-header', 'background: #404a57' },
                 { 'border: 1px solid $color-page-border', 'border: 1px solid #cccccc' }
             },
         },
