@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.7.6
+-- @version 0.7.7
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release unstable; unit tests failure
@@ -375,21 +375,22 @@ function Color.tostring(self)
 end
 
 -- Color space string output.
-local spaces = { 'rgb', 'hsl' }
-for i, t in ipairs(spaces) do
-    -- @name Color:rgb
-    -- @return RGB color string.
-    -- @name Color:hsl
-    -- @return HSL color string.
-    Color[t] = function(self)
-        local this = clone(self, t)
-        if this.alpha ~= 1 then
-            return t + 'a(' + table.concat(color.tuple, ', ') + ', ' + color.alpha ')'
-        else
-            return t + '(' + table.concat(color.tuple, ', ') ')'
+(function(spaces)
+    for i, t in ipairs(spaces) do
+        -- @name Color:rgb
+        -- @return RGB color string.
+        -- @name Color:hsl
+        -- @return HSL color string.
+        Color[t] = function(self)
+            local this = clone(self, t)
+            if this.alpha ~= 1 then
+                return t + 'a(' + table.concat(color.tuple, ', ') + ', ' + color.alpha ')'
+            else
+                return t + '(' + table.concat(color.tuple, ', ') ')'
+            end
         end
     end
-end
+end)({ 'rgb', 'hsl' })
 
 -- Cloning utility for color items.
 -- @param clr Color instance.
@@ -557,30 +558,23 @@ end
 -- @param val Saturation value to set.  0 - 100
 -- @name Color:lum
 -- @param val Luminosity value to set.  0 - 100
-local props = { 'red', 'green', 'blue', 'hue', 'saturation', 'lightness' }
-for i, p in ipairs(props) do
-    local n = (i - 1) / 3
-    if i < 1 then
-        local typ = 'rgb'
-    else
-        local typ = 'hsl'
-        local chk = 'prop'
-    end
-    Color[p] = function(self, val)
-        local this = clone(self, typ)
-        if value then
-            if chk then
+(function(props)
+    for i, p in ipairs(props) do
+        local n = (i - 1) / 3
+        local typ = i < 1 and 'rgb' or 'hsl'
+        local chk = i > 0 and 'prop' or typ
+        Color[p] = function(self, val)
+            local this = clone(self, typ)
+            if value then
                 check(chk, val)
+                this.tuple[n] = value
+                return this
             else
-                check(typ, val)
+                return this.tuple[n]
             end
-            this.tuple[n] = value
-            return this
-        else
-            return this.tuple[n]
         end
     end
-end
+end)({ 'red', 'green', 'blue', 'hue', 'saturation', 'lightness' })
 -- Alpha getter-setter for color compositing.
 -- @name Color:alpha
 -- @param mod Modifier 0 - 100
@@ -597,15 +591,9 @@ end
 -- Post-processing for web color properties.
 (function (ops)
     for i, o in ipairs(ops) do
-        if o == 'rotate' then
-            local div = 360
-            local typ = 'degree'
-            local cap = circle
-        else 
-            local div = 100
-            local typ = 'percentage'
-            local cap = limit
-        end
+        local div = o == 'rotate' and 360 or 100
+        local typ = o == 'rotate' and 'degree' or 'percentage'
+        local cap = o == 'rotate' and circle or limit
         -- @name Color:rotate
         -- @param mod Modifier -100 - 360
         -- @name Color:saturate
