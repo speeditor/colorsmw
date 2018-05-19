@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.7.8
+-- @version 0.7.9
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release unstable; unit tests failure
@@ -724,26 +724,32 @@ c.params = (function(p)
         ['page-opacity'] = tonumber(p['page-opacity'])/100,
         ['color-text'] = page_bright and '#3a3a3a' or '#d5d4d4',
         ['color-contrast'] = page_bright and '#000000' or '#ffffff',
-        ['color-page-border'] = page_bright
-            and c.parse('$color-page'):lighten(-20):tostring()
-            or c.parse('$color-page'):lighten(20):tostring(),
+        ['color-page-border'] = page_bright and
+            c.parse('$color-page'):lighten(-20):tostring() or
+            c.parse('$color-page'):lighten(20):tostring(),
         ['is-dark-wiki'] = not page_bright,
         ['infobox-background'] =
             c.parse('$color-page'):mix('$color-links', pi_bg_o):tostring(),
         ['infobox-section-header-background'] =
             c.parse('$color-page'):mix('$color-links', 75):tostring(),
-        ['color-button-highlight'] = buttons_bright
-            and c.parse('$color-buttons'):lighten(-20):tostring()
-            or c.parse('$color-buttons'):lighten(20):tostring(),
+        ['color-button-highlight'] = buttons_bright and
+            c.parse('$color-buttons'):lighten(-20):tostring() or
+            c.parse('$color-buttons'):lighten(20):tostring(),
         ['color-button-text'] = buttons_bright and '#000000' or '#ffffff',
-        ['dropdown-background-color'] =
-            page_bright_90 and '#ffffff'
-            or page_bright and c.parse('$color-page'):mix('#fff', 90):tostring()
-            or c.parse('$color-page'):mix('#000', 90):tostring(),
+        ['dropdown-background-color'] = (function(p)
+            if page_bright_90 then
+                return '#ffffff'
+            elseif page_bright then
+                return p:mix('#fff', 90):tostring()
+            else
+                return p:mix('#000', 90):tostring()
+            end
+        end)(c.parse('$color-page')),
         ['dropdown-menu-highlight'] = c.parse('$color-links'):alpha(10):tostring()
     }
     -- Concatenate derived and default SASS parameters.
     for k, c in ipairs(d) do p[k] = c end
+    return p
 end)(sassParams)
 
 return c -- export
