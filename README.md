@@ -58,13 +58,13 @@ These methods return a valid CSS color string.
 * `Color:hex` - hexadecimal RGB string output (`#RRGGBB(AA)`)
 * `Color:rgb` - [RGB(A) functional string output](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#rgb()_and_rgba()) (`rgb(#,#%,#%)`)
 * `Color:hsl` - [HSL(A) functional string output](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#hsl()_and_hsla()) (`hsl(#,#%,#%)`)
-* `Color:tostring` - hexadecimal or HSLA string string output (`#RRGGBB`/`hsla(#,#%,#%,#)`)
+* `Color:string` - hexadecimal or HSLA string string output (`#RRGGBB`/`hsla(#,#%,#%,#)`)
 ## Conditionals for color logic
 These methods return a boolean for use in Lua logic.
-* `Color:isBright` - brightness status for color item (accepts optional 1-100 limit parameter)
-* `Color:isColor` - color saturation and visibility status for color item
+* `Color:bright` - brightness status for color item (accepts optional 1-100 limit parameter)
+* `Color:chromatic` - color saturation and visibility status for color item
 
-**N.B:** to test whether something is a color item or string, use `Color.isColor`.
+**N.B:** to test whether something is a color item or string, use `Color.chromatic`.
 
 # TODO
 * Detailed documentation on FANDOM

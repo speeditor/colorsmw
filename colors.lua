@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.7.9
+-- @version 0.8.0
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release unstable; unit tests failure
@@ -192,6 +192,7 @@ local presets = {
 local ranges = {
     rgb = { 0, 255 },
     hsl = { 0, 1 },
+    hue = { 0, 360 },
     percentage = { -100, 100 },
     prop = { 0, 100 },
     degree = { -360, 360 }
@@ -209,7 +210,7 @@ function check(t, n)
     if type(n) ~= 'number' then
         error('invalid color value input: ' .. type(n) .. ' "' .. n .. '"')
     elseif n < min or n > max then
-        error('color value "' .. n .. '" invalid or out of "' .. t .. '" bounds')
+        error('color value "' .. n .. '" out of "' .. t .. '" bounds')
     end
 end
 
@@ -236,7 +237,11 @@ function Color.new(self, tup, typ, alp)
     end
     -- Validate color tuple numbers
     for i, n in ipairs(tup) do
-        check(typ, n)
+        if i == 1 and typ == 'hsl' then
+            check('hue', n)
+        else
+            check(typ, n)
+        end
     end
     check('hsl', alp)
     -- Initialise properties
@@ -336,7 +341,7 @@ function c.parse(str)
         typ = 'rgb'
         alp = 0
     -- Error if string format is invalid
-    else error('cannot parse "' + str'"') end
+    else error('cannot parse "' .. str .. '"') end
     -- Pass data to color constructor
     return Color:new(tup, typ, alp)
 end
@@ -357,16 +362,16 @@ function Color.hex(self)
     end
     -- Alpha channel addition
     local alp = string.format('%x', this.alp*255)
-    if this.alp ~= 255 then
+    if alp ~= 'ff' then
         hex = #alp == 1 and hex .. '0' .. alp or hex .. alp
     end
     return hex -- output
 end
 
 -- Color string output as default.
--- @name Color:tostring()
+-- @name Color:string()
 -- @return Hexadecimal 6-digit or HSLA color string.
-function Color.tostring(self)
+function Color.string(self)
     return self.alp ~= 1 and self:hsl() or self:hex()
 end
 
@@ -380,8 +385,8 @@ end
         Color[t] = function(self)
             local this = clone(self, t)
             return this.alp ~= 1
-                and t + 'a(' + table.concat(color.tup, ', ') + ', ' + color.alp ')'
-                or t + '(' + table.concat(color.tup, ', ') ')'
+                and t .. 'a(' .. table.concat(self.tup, ', ') .. ', ' .. self.alp .. ')'
+                or t .. '(' .. table.concat(self.tup, ', ') .. ')'
         end
     end
 end)({ 'rgb', 'hsl' })
@@ -430,9 +435,11 @@ function convert(clr, typ)
             clr.tup = rgbToHsl(clr.tup)
         end
     end
-    if clr.typ == 'rgb' then
-        for i, t in ipairs(clr.tup) do
+    for i, t in ipairs(clr.tup) do
+        if clr.typ == 'rgb' then
             clr.tup[i] = math.floor(clr.tup[i])
+        elseif clr.typ == 'hsl' then
+            clr.tup[i] = i == 1 and tonumber(string.format("%.0f", clr.tup[i])) or tonumber(string.format("%.2f", clr.tup[i]))
         end
     end
 end
@@ -440,36 +447,30 @@ end
 -- RGB-HSL tuple conversion
 -- @param rgb Tuple table of RGB values.
 -- @return Tuple table of HSL values.
+-- @see http://www.easyrgb.com/en/math.php#m_rgb_hsl
 function rgbToHsl(rgb)
+    -- Preprocessing RGB values.
     for i, t in ipairs(rgb) do
-        rgb[i] = i/255
+        rgb[i] = t/255
     end
-    local r = rgb[1]
-    local g = rgb[2]
-    local b = rgb[3]
-    local max = math.max(r, g, b)
+    local r,g,b = rgb[1], rgb[2], rgb[3]
+    -- Range variables for calculation.
     local min = math.min(r, g, b)
-    local l = (max + min) / 2
-    local h
-    local s
-    local m
-    if max == min then -- achromatic
-        local a = 0
-        h,s = a,a
-    else
-        local d = max - min
-        s = l > 0.5 and d / (2 - max - min) or d / (max + min)
-        if max == r then
-            m = g < b and 6 or 0
-            h = (g - b)  / d + m
-        elseif max == g then
-            h = (b - r)  / d + 2
-        elseif max == b then
-            h = (r - g)  / d + 4
-        end
-        h = h/6;
+    local max = math.max(r, g, b)
+    local d = max - min
+    -- Default values for achromatic colors.
+    local h, s, l = 0, 0, (min + max) / 2
+    -- Compute saturation
+    s = l < 0.5 and d / (max + min) or d / (2 - max - min)
+    -- Compute hue for chromatic colors.
+    if d > 0 then
+        h = max == r and (g - b) / d or
+            max == g and 2 + (b - r)/d or
+            max == b and 4 + (r - g)/d
+        h = circle(h/6, 1)
     end
-    return { h, s, l }
+    -- Output tuple.
+    return { h * 360, s, l }
 end
 
 -- HSL component conversion subroutine to RGB
@@ -484,11 +485,11 @@ function hueToRgb(p, q, t)
         t = t - 1
     end
     if t < 1/6 then
-        return p + (q - p)  * 6 * t
+        return p + (q - p) * 6 * t
     elseif t < 1/2 then
         return q
     elseif t < 2/3 then
-        return p + (q - p)  * (2/3 - t)  * 6
+        return p + (q - p) * (2/3 - t) * 6
     else
         return p
     end
@@ -560,13 +561,14 @@ function Color.alpha(self, val)
     if val then
         check('prop', val)
         self.alp = val / 100
+        return self
     else
         return self.alp
     end
 end
 
 -- Post-processing for web color properties.
-(function (ops)
+(function(ops)
     for i, o in ipairs(ops) do
         local div = o == 'rotate' and 360 or 100
         local typ = o == 'rotate' and 'degree' or 'percentage'
@@ -604,7 +606,7 @@ end
 -- @return Color instance.
 function Color.mix(self, other, weight)
     -- Conversion for strings
-    if not other.isColor then
+    if not other.chromatic then
         other = c.parse(other)
         convert(other, 'rgb')
     else
@@ -643,19 +645,19 @@ function Color.complement(self)
 end
 
 -- Color brightness testing.
--- @name Color:isBright
+-- @name Color:bright
 -- @param lim Luminosity threshold (0.5 default).
 -- @return Boolean for luminosity beyond threshold.
-function Color.isBright(self, lim)
+function Color.bright(self, lim)
     lim = lim and tonumber(lim)/100 or 0.5
     local clr = clone(self, 'hsl')
     return clr.alp >= lim
 end
 
 -- Color status testing.
--- @name Color:isColor
+-- @name Color:chromatic
 -- @return Boolean for whether the instance is a color.
-function Color.isColor(self)
+function Color.chromatic(self)
     convert(self, 'hsl')
     return clr.tup[2] ~= 0 and -- sat   = not 0
            clr.tup[3] ~= 0 and -- lum   = not 0
@@ -704,51 +706,50 @@ end
 -- @name c.params
 -- @usage Direct access to SASS colors in Lua modules.
 -- @todo use mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged
-c.params = (function(p)
+c.params = (function(s)
     -- Remove the unneeded parameters.
     local ext_params = {
         'oasisTypography',
         'widthType'
     }
-    for k, c in ipairs(ext_params) do
-        p[k] = null
-    end
+    for k, c in ipairs(ext_params) do s[c] = nil end
     -- Brightness conditionals for post-processing.
-    local page_bright = c.parse('$color-page'):isBright()
-    local page_bright_90 = c.parse('$color-page'):isBright(90)
-    local buttons_bright = c.parse('$color-buttons'):isBright()
+    local page_bright = c.parse('$color-page'):bright()
+    local page_bright_90 = c.parse('$color-page'):bright(90)
+    local buttons_bright = c.parse('$color-buttons'):bright()
     -- Derived opacity values
     local pi_bg_o = page_bright and 90 or 85
     -- Derived colors and variables.
-    local d = {
-        ['page-opacity'] = tonumber(p['page-opacity'])/100,
+    local p = {
+        ['page-opacity'] = tonumber(s['page-opacity'])/100,
         ['color-text'] = page_bright and '#3a3a3a' or '#d5d4d4',
         ['color-contrast'] = page_bright and '#000000' or '#ffffff',
         ['color-page-border'] = page_bright and
-            c.parse('$color-page'):lighten(-20):tostring() or
-            c.parse('$color-page'):lighten(20):tostring(),
+            c.parse('$color-page'):lighten(-20):string() or
+            c.parse('$color-page'):lighten(20):string(),
         ['is-dark-wiki'] = not page_bright,
         ['infobox-background'] =
-            c.parse('$color-page'):mix('$color-links', pi_bg_o):tostring(),
+            c.parse('$color-page'):mix('$color-links', pi_bg_o):string(),
         ['infobox-section-header-background'] =
-            c.parse('$color-page'):mix('$color-links', 75):tostring(),
+            c.parse('$color-page'):mix('$color-links', 75):string(),
         ['color-button-highlight'] = buttons_bright and
-            c.parse('$color-buttons'):lighten(-20):tostring() or
-            c.parse('$color-buttons'):lighten(20):tostring(),
+            c.parse('$color-buttons'):lighten(-20):string() or
+            c.parse('$color-buttons'):lighten(20):string(),
         ['color-button-text'] = buttons_bright and '#000000' or '#ffffff',
         ['dropdown-background-color'] = (function(p)
             if page_bright_90 then
                 return '#ffffff'
             elseif page_bright then
-                return p:mix('#fff', 90):tostring()
+                return p:mix('#fff', 90):string()
             else
-                return p:mix('#000', 90):tostring()
+                return p:mix('#000', 90):string()
             end
         end)(c.parse('$color-page')),
-        ['dropdown-menu-highlight'] = c.parse('$color-links'):alpha(10):tostring()
+        ['dropdown-menu-highlight'] = c.parse('$color-links'):alpha(10):string()
     }
     -- Concatenate derived and default SASS parameters.
-    for k, c in ipairs(d) do p[k] = c end
+    for k, c in pairs(s) do p[k] = c end
+    -- Export SASS parameter table from SEFE.
     return p
 end)(sassParams)
 

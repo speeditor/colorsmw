@@ -1,6 +1,6 @@
 return {
     name = 'colorsmw',
-    version = '0.7.9',
+    version = '0.8.0',
     description = 'Scribunto library for FANDOM color processing, written in Lua.',
     homepage = 'https://github.com/speeditor/colorsmw',
     author = 'Speedit <speeditwikia@gmail.com>',
@@ -8,8 +8,8 @@ return {
     tags = {'mediawiki', 'fandom', 'lua', 'colors'},
     contributors = {},
     dependencies = {
-        'Scribunto' = 'https://github.com/wikimedia/mediawiki-extensions-Scribunto',
-        'UnitTests' = 'https://dev.wikia.com/wiki/Module:UnitTests',
+        ['Scribunto'] = 'https://github.com/wikimedia/mediawiki-extensions-Scribunto',
+        ['UnitTests'] = 'https://dev.wikia.com/wiki/Module:UnitTests',
     },
     files = {
         '..lua',
