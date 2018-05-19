@@ -1,6 +1,6 @@
 return {
     name = 'colorsmw',
-    version = '0.7.7',
+    version = '0.7.8',
     description = 'Scribunto library for FANDOM color processing, written in Lua.',
     homepage = 'https://github.com/speeditor/colorsmw',
     author = 'Speedit <speeditwikia@gmail.com>',

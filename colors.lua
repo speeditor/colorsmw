@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.7.7
+-- @version 0.7.8
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release unstable; unit tests failure
@@ -12,7 +12,7 @@
 local c = {}
 --- Color item class
 --- @classmod Color
-local Color = { tuple = {}, type = 'rgb', alpha = 1 }
+local Color = { tup = {}, typ = 'rgb', alp = 1 }
 
 -- Site SASS styling parameter cache.
 -- @todo Cache mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged.
@@ -240,11 +240,9 @@ function Color.new(self, tup, typ, alp)
     end
     check('hsl', alp)
     -- Initialise properties
-    o.tuple = tup
-    o.type  = typ
-    if alp then
-        o.alpha = alp
-    end
+    o.tup = tup
+    o.typ  = typ
+    o.alp = alp
     return o -- output
 end
 
@@ -290,7 +288,7 @@ function c.parse(str)
     function extract(str)
         for t in string.gmatch(str, '([^,]+)') do
             if #tup == 3 then
-                alpha = tonumber(t)
+                alp = tonumber(t)
             else
                 tup[#tup+1] = tonumber(t)
             end
@@ -332,6 +330,11 @@ function c.parse(str)
     elseif presets[str] then
         tup = presets[str]
         typ = 'rgb'
+    -- Conversion of web color names to RGB
+    elseif str == 'transparent' then
+        tup = { 0, 0, 0 }
+        typ = 'rgb'
+        alp = 0
     -- Error if string format is invalid
     else error('cannot parse "' + str'"') end
     -- Pass data to color constructor
@@ -345,20 +348,17 @@ function Color.hex(self)
     -- RGB conversion, variables
     local this = clone(self, 'rgb')
     local hex = '#'
-    local alp
     -- Hex string concatenation
-    for i, t in ipairs(this.tuple) do
+    for i, t in ipairs(this.tup) do
         -- Hexadecimal conversion
-        if #string.format('%x', t) == 1 then -- leftpad
-            hex = hex .. '0' .. string.format('%x', t)
-        else
-            hex = hex .. string.format('%x', t)
-        end
+        hex = #string.format('%x', t) == 1 -- leftpad
+            and hex .. '0' .. string.format('%x', t)
+            or hex .. string.format('%x', t)
     end
     -- Alpha channel addition
-    if this.alpha ~= 1 then
-        alp = string.format('%x', this.alpha*255)
-        hex = hex .. alp
+    local alp = string.format('%x', this.alp*255)
+    if this.alp ~= 255 then
+        hex = #alp == 1 and hex .. '0' .. alp or hex .. alp
     end
     return hex -- output
 end
@@ -367,11 +367,7 @@ end
 -- @name Color:tostring()
 -- @return Hexadecimal 6-digit or HSLA color string.
 function Color.tostring(self)
-    if self.alpha ~= 1 then
-        return self:hsl()
-    else
-        return self:hex()
-    end
+    return self.alp ~= 1 and self:hsl() or self:hex()
 end
 
 -- Color space string output.
@@ -383,11 +379,9 @@ end
         -- @return HSL color string.
         Color[t] = function(self)
             local this = clone(self, t)
-            if this.alpha ~= 1 then
-                return t + 'a(' + table.concat(color.tuple, ', ') + ', ' + color.alpha ')'
-            else
-                return t + '(' + table.concat(color.tuple, ', ') ')'
-            end
+            return this.alp ~= 1
+                and t + 'a(' + table.concat(color.tup, ', ') + ', ' + color.alp ')'
+                or t + '(' + table.concat(color.tup, ', ') ')'
         end
     end
 end)({ 'rgb', 'hsl' })
@@ -397,15 +391,7 @@ end)({ 'rgb', 'hsl' })
 -- @param typ Color type for clone.
 -- @return New (clone) color instance.
 function clone(clr, typ)
-    local c = Color:new(
-        {
-            clr.tuple[1],
-            clr.tuple[2],
-            clr.tuple[3]
-        },
-        clr.type,
-        clr.alpha
-    ) -- new color
+    local c = Color:new( clr.tup, clr.typ, clr.alp ) -- new color
     convert(c, typ) -- conversion
     return c -- output
 end
@@ -436,17 +422,17 @@ end
 -- @param typ Color type to output.
 -- @return Converted color instance.
 function convert(clr, typ)
-    if clr.type ~= typ then
-        clr.type   = typ
+    if clr.typ ~= typ then
+        clr.typ   = typ
         if typ == 'rgb' then
-            clr.tuple = hslToRgb(clr.tuple)
+            clr.tup = hslToRgb(clr.tup)
         else
-            clr.tuple = rgbToHsl(clr.tuple)
+            clr.tup = rgbToHsl(clr.tup)
         end
     end
-    if clr.type == 'rgb' then
-        for i, t in ipairs(clr.tuple) do
-            clr.tuple[i] = math.floor(clr.tuple[i])
+    if clr.typ == 'rgb' then
+        for i, t in ipairs(clr.tup) do
+            clr.tup[i] = math.floor(clr.tup[i])
         end
     end
 end
@@ -472,13 +458,9 @@ function rgbToHsl(rgb)
         h,s = a,a
     else
         local d = max - min
-        if l > 0.5 then
-            s = d / (2 - max - min)
-        else
-            s = d / (max + min)
-        end
+        s = l > 0.5 and d / (2 - max - min) or d / (max + min)
         if max == r then
-            if g < b then m = 6 else m = 0 end
+            m = g < b and 6 or 0
             h = (g - b)  / d + m
         elseif max == g then
             h = (b - r)  / d + 2
@@ -516,12 +498,11 @@ end
 -- @param hsl Tuple table of HSL values.
 -- @return Tuple table of RGB values.
 function hslToRgb(hsl)
-    local h = hsl[1]
-    local s = hsl[2]
-    local l = hsl[3]
+    local h, s, l = hsl[1], hsl[2], hsl[3]
     local r
     local g
     local b
+    local q
     -- Achromatic handling
     if s == 0 then
         local a = 1
@@ -529,11 +510,7 @@ function hslToRgb(hsl)
     -- RGB conversion
     else
         -- Assign first temporary variable
-        if l < 0.5 then
-            local q = l * (1 + s) 
-        else 
-            local q = l + s - l * s
-        end
+        q = l < 0.5 and l * (1 + s) or l + s - l * s
         -- Derive second temporary variable
         local p = 2 * l - q
         -- Use subroutine for RGB color values
@@ -565,12 +542,12 @@ end
         local chk = i > 0 and 'prop' or typ
         Color[p] = function(self, val)
             local this = clone(self, typ)
-            if value then
+            if val then
                 check(chk, val)
-                this.tuple[n] = value
+                this.tup[n] = val
                 return this
             else
-                return this.tuple[n]
+                return this.tup[n]
             end
         end
     end
@@ -580,11 +557,11 @@ end)({ 'red', 'green', 'blue', 'hue', 'saturation', 'lightness' })
 -- @param mod Modifier 0 - 100
 -- @return Color instance.
 function Color.alpha(self, val)
-    if value then
+    if val then
         check('prop', val)
-        self.alpha = val / 100
+        self.alp = val / 100
     else
-        return self.alpha
+        return self.alp
     end
 end
 
@@ -604,7 +581,7 @@ end
         Color[o] = function(self, mod)
             check(typ, mod)
             local this = clone(self, 'hsl')
-            this.tuple[i] = cap(self.tuple[i] * (1 + mod / div), 1)
+            this.tup[i] = cap(self.tup[i] * (1 + mod / div), 1)
             return this
         end
     end
@@ -616,7 +593,7 @@ end)({ 'rotate', 'saturate', 'lighten' })
 -- @return Color instance.
 function Color.opacify(self, mod)
     check('percentage', mod)
-    self.alpha = cap(self.alpha * (1 + mod / 100), 1)
+    self.alp = cap(self.alp * (1 + mod / 100), 1)
     return self
 end
 
@@ -639,9 +616,9 @@ function Color.mix(self, other, weight)
     weight = weight/100
     local this = clone(self, 'rgb')
     -- Mixing logic
-    for i, t in ipairs(this.tuple) do
-        this.tuple[i] = math.floor(t * weight + other.tuple[i] * (1 - weight))
-        this.tuple[i] = limit(t, 255)
+    for i, t in ipairs(this.tup) do
+        this.tup[i] = math.floor(t * weight + other.tup[i] * (1 - weight))
+        this.tup[i] = limit(t, 255)
     end
     return self -- output
 end
@@ -652,8 +629,8 @@ end
 function Color.invert(self)
     local this = clone(self, 'rgb')
     -- Calculate 8-bit inverse of RGB tuple.
-    for i, t in ipairs(self.tuple) do
-        self.tuple[i] = 255 - t
+    for i, t in ipairs(self.tup) do
+        self.tup[i] = 255 - t
     end
     return self -- output
 end
@@ -670,13 +647,9 @@ end
 -- @param lim Luminosity threshold (0.5 default).
 -- @return Boolean for luminosity beyond threshold.
 function Color.isBright(self, lim)
-    if lim then
-        lim = tonumber(lim)/100
-    else
-        lim = 0.5
-    end
+    lim = lim and tonumber(lim)/100 or 0.5
     local clr = clone(self, 'hsl')
-    return clr.alpha >= lim
+    return clr.alp >= lim
 end
 
 -- Color status testing.
@@ -684,9 +657,9 @@ end
 -- @return Boolean for whether the instance is a color.
 function Color.isColor(self)
     convert(self, 'hsl')
-    return clr.tuple[2] ~= 0 and -- sat   = not 0
-           clr.tuple[3] ~= 0 and -- lum   = not 0
-           clr.alpha ~= 0        -- alpha = not 0
+    return clr.tup[2] ~= 0 and -- sat   = not 0
+           clr.tup[3] ~= 0 and -- lum   = not 0
+           clr.alp ~= 0        -- alpha = not 0
 end
 
 -- Color SASS parameter access utility for templating.
