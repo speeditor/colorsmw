@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.9.2
+-- @version 0.9.3
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release unstable; unit tests failure
@@ -504,17 +504,17 @@ function hslToRgb(hsl)
     local r
     local g
     local b
+    local p
     local q
     -- Achromatic handling
     if s == 0 then
-        local a = 1
-        r,g,b = a,a,a
+        r,g,b = l,l,l
     -- RGB conversion
     else
         -- Assign first temporary variable
         q = l < 0.5 and l * (1 + s) or l + s - l * s
         -- Derive second temporary variable
-        local p = 2 * l - q
+        p = 2 * l - q
         -- Use subroutine for RGB color values
         r = hueToRgb(p, q, h + 1/3)
         g = hueToRgb(p, q, h)
@@ -532,19 +532,22 @@ end
 -- @name Color:blue
 -- @param val Blue value to set.        1 - 255
 -- @name Color:hue
--- @param val Hue value to set.         0 - 100
+-- @param val Hue value to set.         0 - 360
 -- @name Color:sat
 -- @param val Saturation value to set.  0 - 100
 -- @name Color:lum
 -- @param val Luminosity value to set.  0 - 100
 (function(props)
     for i, p in ipairs(props) do
-        local n = (i - 1) / 3
-        local typ = i < 1 and 'rgb' or 'hsl'
-        local chk = i > 0 and 'prop' or typ
+        local n = 1 + (i - 1) % 3
+        local typ = i < 4 and 'rgb' or 'hsl'
+        local chk = i == 4 and 'hue' or typ
         Color[p] = function(self, val)
             local this = clone(self, typ)
             if val then
+                if typ == 'hsl' and n > 1 then
+                    val = val / 100
+                end
                 check(chk, val)
                 this.tup[n] = val
                 return this
@@ -553,7 +556,8 @@ end
             end
         end
     end
-end)({ 'red', 'green', 'blue', 'hue', 'saturation', 'lightness' })
+end)({ 'red', 'green', 'blue', 'hue', 'sat', 'lum' })
+
 -- Alpha getter-setter for color compositing.
 -- @name Color:alpha
 -- @param mod Modifier 0 - 100
@@ -718,7 +722,7 @@ c.params = (function(p)
     local page_bright_90 = c.parse('$color-page'):bright(90)
     local buttons_bright = c.parse('$color-buttons'):bright()
     -- Derived opacity values.
-    local pi_bg_o = page_bright and 90 or 85
+    local pi_bg_o = page_bright and 85 or 90
     -- Derived colors and variables.
     local d = {
         ['page-opacity'] = tonumber(p['page-opacity'])/100,
