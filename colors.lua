@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.8.0
+-- @version 0.8.1
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release unstable; unit tests failure
@@ -369,7 +369,7 @@ function Color.hex(self)
 end
 
 -- Color string output as default.
--- @name Color:string()
+-- @name Color:string
 -- @return Hexadecimal 6-digit or HSLA color string.
 function Color.string(self)
     return self.alp ~= 1 and self:hsl() or self:hex()
@@ -385,8 +385,8 @@ end
         Color[t] = function(self)
             local this = clone(self, t)
             return this.alp ~= 1
-                and t .. 'a(' .. table.concat(self.tup, ', ') .. ', ' .. self.alp .. ')'
-                or t .. '(' .. table.concat(self.tup, ', ') .. ')'
+                and t .. 'a(' .. table.concat(this.tup, ', ') .. ', ' .. this.alp .. ')'
+                or t .. '(' .. table.concat(this.tup, ', ') .. ')'
         end
     end
 end)({ 'rgb', 'hsl' })
@@ -459,11 +459,12 @@ function rgbToHsl(rgb)
     local max = math.max(r, g, b)
     local d = max - min
     -- Default values for achromatic colors.
-    local h, s, l = 0, 0, (min + max) / 2
-    -- Compute saturation
-    s = l < 0.5 and d / (max + min) or d / (2 - max - min)
-    -- Compute hue for chromatic colors.
+    local h, s, l = 0, 0, ((min + max) / 2)
+    -- Calculation for chromatic colors.
     if d > 0 then
+        -- Compute saturation
+        s = l < 0.5 and d / (max + min) or d / (2 - max - min)
+        -- Compute hue
         h = max == r and (g - b) / d or
             max == g and 2 + (b - r)/d or
             max == b and 4 + (r - g)/d
@@ -666,7 +667,7 @@ end
 
 -- Color SASS parameter access utility for templating.
 -- @param frame Invocation frame.
--- @usage {{#invoke:colors|param|key}}
+-- @usage {{#invoke:colors|wikia|key}}
 -- @raise 'invalid SASS parameter name supplied'
 -- @return Color string aligning with parameter.
 function c.wikia(frame)
@@ -689,14 +690,14 @@ end
 -- @param frame Invocation frame.
 -- @usage {{#invoke:colors|css|styling}}
 -- @raise 'no styling supplied'
--- @return CSS styling with $parameters substituted from c.wikia.
+-- @return CSS styling with $parameters substituted from c.params.
 function c.css(frame)
     -- Check if styling has been supplied
     if frame.args and frame.args[1] then
         local styles = mw.text.trim(frame.args[1])
         -- Substitution of colors
-        local output = string.gsub(styles, '%$([%w-]+)', c.wikia)
-        return c.parse(output)
+        local output = string.gsub(styles, '%$([%w-]+)', c.params)
+        return output
     else
         error('no styling supplied')
     end
@@ -717,7 +718,7 @@ c.params = (function(s)
     local page_bright = c.parse('$color-page'):bright()
     local page_bright_90 = c.parse('$color-page'):bright(90)
     local buttons_bright = c.parse('$color-buttons'):bright()
-    -- Derived opacity values
+    -- Derived opacity values.
     local pi_bg_o = page_bright and 90 or 85
     -- Derived colors and variables.
     local p = {
