@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.8.1
+-- @version 0.9.0
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release unstable; unit tests failure
@@ -22,15 +22,15 @@ local Color = { tup = {}, typ = 'rgb', alp = 1 }
 local sassParams = {
     ['background-dynamic'] = 'false',
     ['background-image'] = '',
-    ['background-image-height'] = '801',
-    ['background-image-width'] = '1700',
-    ['color-body'] = '#2c343d',
-    ['color-body-middle'] = '#2c343d',
-    ['color-buttons'] = '#00b7e0',
+    ['background-image-height'] = '168',
+    ['background-image-width'] = '271',
+    ['color-body'] = '#f6f6f6',
+    ['color-body-middle'] = '#bacdd8',
+    ['color-buttons'] = '#404a57',
     ['color-community-header'] = '#404a57',
     ['color-header'] = '#404a57',
-    ['color-links'] = '#00c8e0',
-    ['color-page'] = '#39424d',
+    ['color-links'] = '#009bbe',
+    ['color-page'] = '#ffffff',
     ['oasisTypography'] = 1,
     ['page-opacity'] = '100',
     ['widthType'] = 0
@@ -275,7 +275,7 @@ end
 
 -- Parsing logic for color strings.
 -- @param str Valid color string.
--- @raise 'Cannot parse $str'
+-- @raise 'cannot parse $str'
 -- @see Color:new
 -- @return Color instance.
 function c.parse(str)
@@ -439,7 +439,7 @@ function convert(clr, typ)
         if clr.typ == 'rgb' then
             clr.tup[i] = math.floor(clr.tup[i])
         elseif clr.typ == 'hsl' then
-            clr.tup[i] = i == 1 and tonumber(string.format("%.0f", clr.tup[i])) or tonumber(string.format("%.2f", clr.tup[i]))
+            clr.tup[i] = i == 1 and tonumber(string.format('%.0f', clr.tup[i])) or tonumber(string.format('%.2f', clr.tup[i]))
         end
     end
 end
@@ -572,19 +572,20 @@ end
 (function(ops)
     for i, o in ipairs(ops) do
         local div = o == 'rotate' and 360 or 100
-        local typ = o == 'rotate' and 'degree' or 'percentage'
+        local chk = o == 'rotate' and 'degree' or 'percentage'
         local cap = o == 'rotate' and circle or limit
+        local max = o == 'rotate' and 360 or 1
         -- @name Color:rotate
-        -- @param mod Modifier -100 - 360
+        -- @param mod Modifier -360 - 360
         -- @name Color:saturate
         -- @param mod Modifier -100 - 100
         -- @name Color:lighten
         -- @param mod Modifier -100 - 100
         -- @return Color instance.
         Color[o] = function(self, mod)
-            check(typ, mod)
+            check(chk, mod)
             local this = clone(self, 'hsl')
-            this.tup[i] = cap(self.tup[i] * (1 + mod / div), 1)
+            this.tup[i] = cap(self.tup[i] * (1 + mod / div), max)
             return this
         end
     end
@@ -620,10 +621,10 @@ function Color.mix(self, other, weight)
     local this = clone(self, 'rgb')
     -- Mixing logic
     for i, t in ipairs(this.tup) do
-        this.tup[i] = math.floor(t * weight + other.tup[i] * (1 - weight))
-        this.tup[i] = limit(t, 255)
+        this.tup[i] = t * weight + other.tup[i] * (1 - weight)
+        this.tup[i] = limit(this.tup[i], 255)
     end
-    return self -- output
+    return this -- output
 end
 
 -- Color inversion utility.
@@ -652,7 +653,7 @@ end
 function Color.bright(self, lim)
     lim = lim and tonumber(lim)/100 or 0.5
     local clr = clone(self, 'hsl')
-    return clr.alp >= lim
+    return clr.tup[2] >= lim
 end
 
 -- Color status testing.

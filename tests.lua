@@ -12,7 +12,7 @@ local t = {
         tests = {
             preprocess_equals_many = {
                 { 'page-opacity', '1' },
-                { 'color-button-text', '#6b7c92' },
+                { 'color-button-text', '#ffffff' },
             },
         },
     },

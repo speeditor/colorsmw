@@ -42,11 +42,11 @@ These methods retrieve or override color properties. They accept a optional valu
 * `Color:lum` - luminosity value (0-100)
 * `Color:alpha` - alpha value (0-100)
 ## Processing methods
-The methods marked **\*** accept one optional modifier value parameter (-100 to 100).
-* `Color:rotate`* - color rotation by degree
-* `Color:saturate`* - color saturation change by modifier
-* `Color:lighten`* - color lightness change by modifier
-* `Color:opacify`* - color alpha change by modifier
+The methods marked **\*** accept one optional modifier value parameter.
+* `Color:rotate`* - color rotation by degree (0 to 360)
+* `Color:saturate`* - color saturation change by modifier (-100 to 100)
+* `Color:lighten`* - color lightness change by modifier (-100 to 100)
+* `Color:opacify`* - color alpha change by modifier (-100 to 100)
 * `Color:mix` - mixing with other color items or strings (scaled by 100, reverse weighted)
 ```lua
 colors.parse('#fff'):mix('#000', 80):hex() -- outputs '#cccccc'
