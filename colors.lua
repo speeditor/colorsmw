@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.9.0
+-- @version 0.9.1
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release unstable; unit tests failure
@@ -674,14 +674,12 @@ end
 function c.wikia(frame)
     if frame.args and frame.args[1] then
         local key = mw.text.trim(frame.args[1])
-        -- Assign custom parameter value.
-        if c.params and c.params[key] then
-            local val = c.params[key]
-        -- Assign default parameter value.
-        elseif sassParams[key] then
-            local val = sassParams[key]
-        end
-        return val
+        local val = 
+            -- Assign custom parameter value.
+            c.params and c.params[key] and c.params[key] or
+            -- Assign default parameter value.
+            sassParams[key] and sassParams[key]
+        return val or 'transparent'
     else
         error('invalid SASS parameter name supplied')
     end
@@ -708,13 +706,13 @@ end
 -- @name c.params
 -- @usage Direct access to SASS colors in Lua modules.
 -- @todo use mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged
-c.params = (function(s)
+c.params = (function(p)
     -- Remove the unneeded parameters.
     local ext_params = {
         'oasisTypography',
         'widthType'
     }
-    for k, c in ipairs(ext_params) do s[c] = nil end
+    for k, c in ipairs(ext_params) do p[c] = nil end
     -- Brightness conditionals for post-processing.
     local page_bright = c.parse('$color-page'):bright()
     local page_bright_90 = c.parse('$color-page'):bright(90)
@@ -722,8 +720,8 @@ c.params = (function(s)
     -- Derived opacity values.
     local pi_bg_o = page_bright and 90 or 85
     -- Derived colors and variables.
-    local p = {
-        ['page-opacity'] = tonumber(s['page-opacity'])/100,
+    local d = {
+        ['page-opacity'] = tonumber(p['page-opacity'])/100,
         ['color-text'] = page_bright and '#3a3a3a' or '#d5d4d4',
         ['color-contrast'] = page_bright and '#000000' or '#ffffff',
         ['color-page-border'] = page_bright and
@@ -750,7 +748,7 @@ c.params = (function(s)
         ['dropdown-menu-highlight'] = c.parse('$color-links'):alpha(10):string()
     }
     -- Concatenate derived and default SASS parameters.
-    for k, c in pairs(s) do p[k] = c end
+    for k, c in pairs(d) do p[k] = c end
     -- Export SASS parameter table from SEFE.
     return p
 end)(sassParams)
