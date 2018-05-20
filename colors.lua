@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.9.1
+-- @version 0.9.2
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release unstable; unit tests failure
@@ -437,7 +437,7 @@ function convert(clr, typ)
     end
     for i, t in ipairs(clr.tup) do
         if clr.typ == 'rgb' then
-            clr.tup[i] = math.floor(clr.tup[i])
+            clr.tup[i] = tonumber(string.format('%.0f', clr.tup[i]))
         elseif clr.typ == 'hsl' then
             clr.tup[i] = i == 1 and tonumber(string.format('%.0f', clr.tup[i])) or tonumber(string.format('%.2f', clr.tup[i]))
         end
@@ -585,7 +585,7 @@ end
         Color[o] = function(self, mod)
             check(chk, mod)
             local this = clone(self, 'hsl')
-            this.tup[i] = cap(self.tup[i] * (1 + mod / div), max)
+            this.tup[i] = cap(this.tup[i] * (1 + (mod / div)), max)
             return this
         end
     end
@@ -597,7 +597,7 @@ end)({ 'rotate', 'saturate', 'lighten' })
 -- @return Color instance.
 function Color.opacify(self, mod)
     check('percentage', mod)
-    self.alp = cap(self.alp * (1 + mod / 100), 1)
+    self.alp = limit(self.alp * (1 + mod / 100), 1)
     return self
 end
 

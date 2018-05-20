@@ -7,7 +7,7 @@
 local t = {
     wikia = {
         options = {
-            nowiki = false
+            nowiki = true
         },
         tests = {
             preprocess_equals_many = {
@@ -18,7 +18,7 @@ local t = {
     },
     css = {
         options = {
-            nowiki = false
+            nowiki = true
         },
         tests = {
             preprocess_equals_many = {
