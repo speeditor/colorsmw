@@ -2,7 +2,7 @@
 -- @module t
 -- @usage  Dependent on UnitTests Scribunto module.
 --         https://dev.wikia.com/wiki/Global_Lua_Modules/UnitTests
--- @see    Results stored at:
+-- @see    Unit test report:
 --         https://dev.wikia.com/wiki/Module_talk:Colors/testcases
 local t = {
     css = {
