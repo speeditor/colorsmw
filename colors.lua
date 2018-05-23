@@ -1,10 +1,10 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.9.4
+-- @version 0.9.5
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
--- @release unstable; unit tests failure
+-- @release beta; experimental
 -- <nowiki>
 
 -- Library variables
@@ -729,16 +729,16 @@ c.params = (function(p)
         ['color-text'] = page_bright and '#3a3a3a' or '#d5d4d4',
         ['color-contrast'] = page_bright and '#000000' or '#ffffff',
         ['color-page-border'] = page_bright and
-            c.parse('$color-page'):lighten(-20):string() or
-            c.parse('$color-page'):lighten(20):string(),
+            c.parse('$color-page'):mix('#000', 80):string() or
+            c.parse('$color-page'):mix('#fff', 80):string(),
         ['is-dark-wiki'] = not page_bright,
         ['infobox-background'] =
             c.parse('$color-page'):mix('$color-links', pi_bg_o):string(),
         ['infobox-section-header-background'] =
             c.parse('$color-page'):mix('$color-links', 75):string(),
         ['color-button-highlight'] = buttons_bright and
-            c.parse('$color-buttons'):lighten(-20):string() or
-            c.parse('$color-buttons'):lighten(20):string(),
+            c.parse('$color-buttons'):mix('#000', 80):string() or
+            c.parse('$color-buttons'):mix('#fff', 80):string(),
         ['color-button-text'] = buttons_bright and '#000000' or '#ffffff',
         ['dropdown-background-color'] = (function(p)
             if page_bright_90 then
@@ -749,7 +749,7 @@ c.params = (function(p)
                 return p:mix('#000', 90):string()
             end
         end)(c.parse('$color-page')),
-        ['dropdown-menu-highlight'] = c.parse('$color-links'):alpha(10):string()
+        ['dropdown-menu-highlight'] = c.parse('$color-links'):alpha(10):rgb()
     }
     -- Concatenate derived and default SASS parameters.
     for k, c in pairs(d) do p[k] = c end
