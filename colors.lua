@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.9.5
+-- @version 0.9.6
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release beta; experimental
@@ -720,6 +720,7 @@ c.params = (function(p)
     -- Brightness conditionals for post-processing.
     local page_bright = c.parse('$color-page'):bright()
     local page_bright_90 = c.parse('$color-page'):bright(90)
+    local header_bright = c.parse('$color-community-header'):bright()
     local buttons_bright = c.parse('$color-buttons'):bright()
     -- Derived opacity values.
     local pi_bg_o = page_bright and 90 or 85
@@ -736,6 +737,9 @@ c.params = (function(p)
             c.parse('$color-page'):mix('$color-links', pi_bg_o):string(),
         ['infobox-section-header-background'] =
             c.parse('$color-page'):mix('$color-links', 75):string(),
+        ['color-community-header-text'] = header_bright and
+            '#000000' or
+            '#ffffff',
         ['color-button-highlight'] = buttons_bright and
             c.parse('$color-buttons'):mix('#000', 80):string() or
             c.parse('$color-buttons'):mix('#fff', 80):string(),
