@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 0.9.3
+-- @version 0.9.4
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release unstable; unit tests failure
@@ -637,10 +637,10 @@ end
 function Color.invert(self)
     local this = clone(self, 'rgb')
     -- Calculate 8-bit inverse of RGB tuple.
-    for i, t in ipairs(self.tup) do
-        self.tup[i] = 255 - t
+    for i, t in ipairs(this.tup) do
+        this.tup[i] = 255 - t
     end
-    return self -- output
+    return this -- output
 end
 
 -- Complementary color utility.
@@ -656,18 +656,18 @@ end
 -- @return Boolean for luminosity beyond threshold.
 function Color.bright(self, lim)
     lim = lim and tonumber(lim)/100 or 0.5
-    local clr = clone(self, 'hsl')
-    return clr.tup[2] >= lim
+    local this = clone(self, 'hsl')
+    return this.tup[3] >= lim
 end
 
 -- Color status testing.
 -- @name Color:chromatic
 -- @return Boolean for whether the instance is a color.
 function Color.chromatic(self)
-    convert(self, 'hsl')
-    return clr.tup[2] ~= 0 and -- sat   = not 0
-           clr.tup[3] ~= 0 and -- lum   = not 0
-           clr.alp ~= 0        -- alpha = not 0
+    local this = clone(self, 'hsl')
+    return this.tup[2] ~= 0 and -- sat   = not 0
+           this.tup[3] ~= 0 and -- lum   = not 0
+           this.alp ~= 0        -- alpha = not 0
 end
 
 -- Color SASS parameter access utility for templating.
@@ -722,7 +722,7 @@ c.params = (function(p)
     local page_bright_90 = c.parse('$color-page'):bright(90)
     local buttons_bright = c.parse('$color-buttons'):bright()
     -- Derived opacity values.
-    local pi_bg_o = page_bright and 85 or 90
+    local pi_bg_o = page_bright and 90 or 85
     -- Derived colors and variables.
     local d = {
         ['page-opacity'] = tonumber(p['page-opacity'])/100,
