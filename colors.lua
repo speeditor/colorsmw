@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 1.1.0
+-- @version 1.1.1
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release stable; unit tests passed
@@ -324,11 +324,11 @@ function c.parse(str)
         end
         typ = 'rgb'
     -- Parsing patterns for RGB format
-    elseif string.match(str, 'rgb[a]?%([%d,]%)') then
+    elseif string.match(str, 'rgb[a]?%([%d,]+%)') then
         extract(string.match(str, '^rgba?%(([0-9.,]+)%)$'))
         typ = 'rgb'
     -- Parsing patterns for HSL format
-    elseif string.match(str, 'hsl[a]?%([%d,]%)') then
+    elseif string.match(str, 'hsl[a]?%([%d,]+%)') then
         extract(string.match(str, '^hsla?%(([0-9.,]+)%)$'))
         typ = 'hsl'
     -- Conversion of web color names to RGB
