@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 1.0.0
+-- @version 1.1.0
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release stable; unit tests passed
@@ -703,6 +703,25 @@ function c.css(frame)
         return output
     else
         error('no styling supplied')
+    end
+end
+
+-- Color generator for high-contrast text.
+-- @param frame Invocation frame.
+-- @usage {{#invoke:colors|text|background color|dark text color|light text color}}
+-- @raise 'no color supplied'
+-- @return Color string '#000000'/$2 or '#ffffff'/$3.
+function c.text(frame)
+    -- Check if styling has been supplied
+    if frame.args and frame.args[1] then
+        local str = mw.text.trim(frame.args[1])
+        local clr = {
+            (mw.text.trim(frame.args[2] or '#000000')),
+            (mw.text.trim(frame.args[3] or '#ffffff')),
+        }
+        return c.parse(str):bright(51) and clr[1] or clr[2]
+    else
+        error('no color supplied')
     end
 end
 

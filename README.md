@@ -18,18 +18,20 @@ local colors = require("Dev:Colors")
 The following keys are exposed in the module package:
 * `colors.wikia` - template utility for accessing CSS colors
 * `colors.css` - template utility for FANDOM CSS $parameter support
+* `colors.text` - template utility for high contrast text colors
 * `colors.fromRgb` - color item creation from RGB tuple
 * `colors.fromHsl` - color item creation from HSL tuple
 * `colors.parse` - color parsing of any valid [CSS color](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) string
 * `colors.params` - table of FANDOM SASS colors for Lua modules
 
 ***Example usage on a wiki:***
-```html
+```mediawiki
 <div style="{{#invoke:colors|css|1px solid $color-community-header}}"></div>
 ```
-***Rendered output on desktop:***
-```html
-<div style="1px solid #404a57"></div>
+***Example usage in a Lua module***
+```lua
+local colors = require("Dev:Colors")
+mw.log(colors.fromHsl({64, 74, 87}):string())
 ```
 
 ## Color item methods
