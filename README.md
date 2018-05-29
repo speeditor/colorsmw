@@ -9,7 +9,6 @@ A full author history of the original JS library is here:
 >https://dev.wikia.com/wiki/MediaWiki:Colors/code.js?action=history
 
 ## Usage
-**Note:** The module is unstable on FANDOM. **DON'T** actually use it yet.
 ```lua
 local colors = require("Dev:Colors")
 ```
