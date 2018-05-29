@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 1.1.1
+-- @version 1.3.0
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release stable; unit tests passed
@@ -12,7 +12,7 @@
 local c = {}
 --- Color item class
 --- @classmod Color
-local Color = { tup = {}, typ = 'rgb', alp = 1 }
+local Color = { tup = {}, typ = '', alp = 1 }
 
 -- Site SASS styling parameter cache.
 -- @todo Cache mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged.
@@ -97,8 +97,8 @@ local presets = {
     greenyellow = { 173, 255, 47 },
     honeydew = { 240, 255, 240 },
     hotpink = { 255, 105, 180 },
-    indianred  = { 205, 92, 92 },
-    indigo   = { 75, 0, 130 },
+    indianred = { 205, 92, 92 },
+    indigo = { 75, 0, 130 },
     ivory = { 255, 255, 240 },
     khaki = { 240, 230, 140 },
     lavender = { 230, 230, 250 },
@@ -246,7 +246,7 @@ function Color.new(self, tup, typ, alp)
     check('hsl', alp)
     -- Initialise properties
     o.tup = tup
-    o.typ  = typ
+    o.typ = typ
     o.alp = alp
     return o -- output
 end
@@ -344,6 +344,22 @@ function c.parse(str)
     else error('cannot parse "' .. str .. '"') end
     -- Pass data to color constructor
     return Color:new(tup, typ, alp)
+end
+
+-- Instance test function for colors.
+-- @param item Color item or string.
+-- @return Boolean indicating whether it is a Color instance.
+function c.instance(item)
+    local c = Color
+    local i = getmetatable(item)
+    if i then
+        for m, v in pairs(i) do
+            if not c[m] then c[m] = v end
+        end
+	    return i == c
+	else
+	    return false
+	end
 end
 
 -- Color hexadecimal string output
@@ -612,7 +628,7 @@ end
 -- @return Color instance.
 function Color.mix(self, other, weight)
     -- Conversion for strings
-    if not other.chromatic then
+    if not c.instance(other) then
         other = c.parse(other)
         convert(other, 'rgb')
     else

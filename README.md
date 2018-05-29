@@ -22,6 +22,7 @@ The following keys are exposed in the module package:
 * `colors.fromRgb` - color item creation from RGB tuple
 * `colors.fromHsl` - color item creation from HSL tuple
 * `colors.parse` - color parsing of any valid [CSS color](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) string
+* `colors.instance` - color instance test
 * `colors.params` - table of FANDOM SASS colors for Lua modules
 
 ***Example usage on a wiki:***
@@ -66,8 +67,6 @@ These methods return a valid CSS color string.
 These methods return a boolean for use in Lua logic.
 * `Color:bright` - brightness status for color item (accepts optional 1-100 limit parameter)
 * `Color:chromatic` - color saturation and visibility status for color item
-
-**N.B:** to test whether something is a color item or string, use `Color.chromatic`.
 
 # TODO
 * Detailed documentation on FANDOM
