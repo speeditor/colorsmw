@@ -1,5 +1,5 @@
 <includeonly><!--
- -->{{#switch:{{lc:{{{1|}}}}}
+ -->{{#switch: {{lc:{{{1|}}}}}
         | css = {{#invoke:colors|css|{{{2|}}}}}
         | wikia = {{#invoke:colors|wikia|{{{2|}}}}}
         | text = {{#invoke:colors|text|{{{2|}}}|{{{3|}}}|{{{4|}}}}}

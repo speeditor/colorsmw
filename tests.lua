@@ -4,7 +4,7 @@
 --         https://dev.wikia.com/wiki/Global_Lua_Modules/UnitTests
 -- @see    Unit test report:
 --         https://dev.wikia.com/wiki/Module_talk:Colors/testcases
-local t = {
+return {
     wikia = {
         options = {
             nowiki = true
@@ -57,4 +57,3 @@ local t = {
         }
     }
 }
-return t

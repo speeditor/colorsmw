@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 1.3.0
+-- @version 1.5.0
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release stable; unit tests passed
@@ -15,23 +15,19 @@ local c = {}
 local Color = { tup = {}, typ = '', alp = 1 }
 
 -- Site SASS styling parameter cache.
--- @todo Cache mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged.
---       Currently, the module has static parameters for dev.wikia.com only.
---
--- local sassParams = mw.site.sassParams
-local sassParams = {
+local sassParams = mw.site.sassParams or {
     ['background-dynamic'] = 'false',
     ['background-image'] = '',
-    ['background-image-height'] = '168',
-    ['background-image-width'] = '271',
+    ['background-image-height'] = '0',
+    ['background-image-width'] = '0',
     ['color-body'] = '#f6f6f6',
-    ['color-body-middle'] = '#bacdd8',
-    ['color-buttons'] = '#404a57',
-    ['color-community-header'] = '#404a57',
-    ['color-header'] = '#404a57',
-    ['color-links'] = '#009bbe',
+    ['color-body-middle'] = '#f6f6f6',
+    ['color-buttons'] = '#a7d7f9',
+    ['color-community-header'] = '#f6f6f6',
+    ['color-header'] = '#f6f6f6',
+    ['color-links'] = '#0b0080',
     ['color-page'] = '#ffffff',
-    ['oasisTypography'] = 1,
+    ['oasisTypography'] = 0,
     ['page-opacity'] = '100',
     ['widthType'] = 0
 }
@@ -97,8 +93,8 @@ local presets = {
     greenyellow = { 173, 255, 47 },
     honeydew = { 240, 255, 240 },
     hotpink = { 255, 105, 180 },
-    indianred = { 205, 92, 92 },
-    indigo = { 75, 0, 130 },
+    indianred  = { 205, 92, 92 },
+    indigo   = { 75, 0, 130 },
     ivory = { 255, 255, 240 },
     khaki = { 240, 230, 140 },
     lavender = { 230, 230, 250 },
@@ -246,7 +242,7 @@ function Color.new(self, tup, typ, alp)
     check('hsl', alp)
     -- Initialise properties
     o.tup = tup
-    o.typ = typ
+    o.typ  = typ
     o.alp = alp
     return o -- output
 end
