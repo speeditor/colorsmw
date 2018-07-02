@@ -31,7 +31,7 @@ The following keys are exposed in the module package:
 ***Example usage in a Lua module***
 ```lua
 local colors = require("Dev:Colors")
-mw.log(colors.fromHsl({64, 74, 87}):string())
+mw.log(colors.fromHsl({0.18, 74, 87}):string())
 ```
 
 ## Color item methods
@@ -52,7 +52,7 @@ The methods marked **\*** accept one optional modifier value parameter.
 * `Color:opacify`* - color alpha change by modifier (-100 to 100)
 * `Color:mix` - mixing with other color items or strings (scaled by 100, reverse weighted)
 ```lua
-colors.parse('#fff'):mix('#000', 80):hex() -- outputs '#cccccc' on dev.wikia.com
+colors.parse('#fff'):mix('#000', 80):hex() -- outputs '#cccccc'
 ```
 * `Color:invert` - inversion of color item
 * `Color:complement` - complement of color item

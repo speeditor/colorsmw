@@ -1,9 +1,9 @@
 -- Unit tests for colorsmw library.
--- @module t
 -- @usage  Dependent on UnitTests Scribunto module.
 --         https://dev.wikia.com/wiki/Global_Lua_Modules/UnitTests
 -- @see    Unit test report:
 --         https://dev.wikia.com/wiki/Module_talk:Colors/testcases
+-- @submodule
 return {
     wikia = {
         options = {
@@ -30,7 +30,7 @@ return {
                 },
                 {
                     'background-color: $infobox-background; clear: right; float: right; margin: 0 0 15px 15px; width: 270px;',
-                    'background-color: #e6f5f8; clear: right; float: right; margin: 0 0 15px 15px; width: 270px;'
+                    'background-color: #e6f5f9; clear: right; float: right; margin: 0 0 15px 15px; width: 270px;'
                 },
                 {
                     'background-color: $color-community-header; color: $color-community-header-text;',
@@ -38,7 +38,7 @@ return {
                 },
                 {
                     'background-color: $infobox-background; border-color: $color-links; color: $color-text;',
-                    'background-color: #e6f5f8; border-color: #009bbe; color: #3a3a3a;'
+                    'background-color: #e6f5f9; border-color: #009bbe; color: #3a3a3a;'
                 }
             }
         }

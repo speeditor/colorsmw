@@ -1,14 +1,14 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module  c
--- @version 1.5.0
+-- @version 1.6.0
 -- @usage   require("Dev:Colors")
 -- @author  Speedit
 -- @release stable; unit tests passed
 -- <nowiki>
 
 -- Library variables
---- Package table
+--- Module package.
 local c = {}
 --- Color item class
 --- @classmod Color
@@ -266,7 +266,7 @@ end
 -- @see Color:new
 -- @return Color instance.    
 function c.fromHsl(h, s, l, a)
-    return Color:new({ h, s, l }, 'hsl', a or 1);
+    return Color:new({ h*360, s, l }, 'hsl', a or 1);
 end
 
 -- Parsing logic for color strings.
@@ -288,15 +288,21 @@ function c.parse(str)
     -- Subroutine for RGB/HSL color data extraction
     function extract(str)
         for t in string.gmatch(str, '([^,]+)') do
+            local tp = string.find(t, '%%') and
+                tonumber(string.match(t, '[^%%]+'))/100 or
+                t
             if #tup == 3 then
-                alp = tonumber(t)
+                alp = tonumber(tp)
             else
-                tup[#tup+1] = tonumber(t)
+                tup[#tup+1] = tonumber(tp)
             end
         end
     end
     -- Parsing patterns for hex format
-    if string.match(str, '^%#[%x]+$') and #str == 4 or #str == 5 or #str == 7 or #str == 9 then
+    if string.match(str, '^%#[%x]+$') and ({
+        [4] = 1, [5] = 1, -- #xxxx?
+        [7] = 1, [9] = 1  -- #xxxxxxx?x?
+    })[#str] then
         -- Hex color data extraction
         if #str == 4 then
             tup[1], tup[2], tup[3] = string.match(str, '^%#(%x)(%x)(%x)$')
@@ -320,12 +326,12 @@ function c.parse(str)
         end
         typ = 'rgb'
     -- Parsing patterns for RGB format
-    elseif string.match(str, 'rgb[a]?%([%d,]+%)') then
-        extract(string.match(str, '^rgba?%(([0-9.,]+)%)$'))
+    elseif string.match(str, 'rgba?%([%d,.%%]+%)') then
+        extract(string.match(str, '^rgba?%(([0-9.,%%]+)%)$'))
         typ = 'rgb'
     -- Parsing patterns for HSL format
-    elseif string.match(str, 'hsl[a]?%([%d,]+%)') then
-        extract(string.match(str, '^hsla?%(([0-9.,]+)%)$'))
+    elseif string.match(str, 'hsla?%([%d,.%%]+%)') then
+        extract(string.match(str, '^hsla?%(([0-9.,%%]+)%)$'))
         typ = 'hsl'
     -- Conversion of web color names to RGB
     elseif presets[str] then
@@ -395,6 +401,7 @@ end
         -- @name Color:hsl
         -- @return HSL color string.
         Color[t] = function(self)
+            -- Convert tuple.
             local this = clone(self, t)
             return this.alp ~= 1
                 and t .. 'a(' .. table.concat(this.tup, ', ') .. ', ' .. this.alp .. ')'
@@ -402,6 +409,14 @@ end
         end
     end
 end)({ 'rgb', 'hsl' })
+
+-- Rounding utility for color tuples.
+-- @param tup Color tuple.
+-- @param dec Number of decimal places.
+function round(tup, dec)
+    local ord = 10^(dec or 0)
+    return math.floor(tup * ord + 0.5) / ord
+end
 
 -- Cloning utility for color items.
 -- @param clr Color instance.
@@ -449,9 +464,11 @@ function convert(clr, typ)
     end
     for i, t in ipairs(clr.tup) do
         if clr.typ == 'rgb' then
-            clr.tup[i] = tonumber(string.format('%.0f', clr.tup[i]))
+            clr.tup[i] = round(clr.tup[i], 0)
         elseif clr.typ == 'hsl' then
-            clr.tup[i] = i == 1 and tonumber(string.format('%.0f', clr.tup[i])) or tonumber(string.format('%.2f', clr.tup[i]))
+            clr.tup[i] = i == 1 and
+                round(clr.tup[i], 0) or
+                round(clr.tup[i], 2)
         end
     end
 end
@@ -587,7 +604,7 @@ end
 -- Post-processing for web color properties.
 (function(ops)
     for i, o in ipairs(ops) do
-        local div = o == 'rotate' and 360 or 100
+        local div = o == 'rotate' and 1 or 100
         local chk = o == 'rotate' and 'degree' or 'percentage'
         local cap = o == 'rotate' and circle or limit
         local max = o == 'rotate' and 360 or 1
@@ -601,7 +618,7 @@ end
         Color[o] = function(self, mod)
             check(chk, mod)
             local this = clone(self, 'hsl')
-            this.tup[i] = cap(this.tup[i] * (1 + (mod / div)), max)
+            this.tup[i] = cap(this.tup[i] + (mod / div), max)
             return this
         end
     end
@@ -613,7 +630,7 @@ end)({ 'rotate', 'saturate', 'lighten' })
 -- @return Color instance.
 function Color.opacify(self, mod)
     check('percentage', mod)
-    self.alp = limit(self.alp * (1 + mod / 100), 1)
+    self.alp = limit(self.alp + (mod / 100), 1)
     return self
 end
 
@@ -724,7 +741,7 @@ end
 -- @raise 'no color supplied'
 -- @return Color string '#000000'/$2 or '#ffffff'/$3.
 function c.text(frame)
-    -- Check if styling has been supplied
+    -- Check if styling has been supplied.
     if frame.args and frame.args[1] then
         local str = mw.text.trim(frame.args[1])
         local clr = {
@@ -792,6 +809,7 @@ c.params = (function(p)
     return p
 end)(sassParams)
 
-return c -- export
+-- Package export.
+return c
 
 -- </nowiki>
