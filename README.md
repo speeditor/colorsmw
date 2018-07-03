@@ -65,6 +65,7 @@ These methods return a valid CSS color string.
 ### Conditionals for color logic
 These methods return a boolean for use in Lua logic.
 * `Color:bright` - brightness status for color item (accepts optional 1-100 limit parameter)
+* `Color:luminant` - [luminance](https://en.wikipedia.org/wiki/Relative_luminance) status for color item (accepts optional 1-100 limit parameter)
 * `Color:chromatic` - color saturation and visibility status for color item
 
 # TODO

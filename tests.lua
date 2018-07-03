@@ -53,6 +53,7 @@ return {
                 { 'rgb(58, 58, 58)', '#ffffff' },
                 { '$color-community-header', '#ffffff' },
                 { '$color-community-header|#0f0f0f|#f0f0f0', '#f0f0f0' },
+                { 'yellow|lum=true', '#000000' },
             }
         }
     }

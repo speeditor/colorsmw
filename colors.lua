@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module              c
--- @version             2.0.0
+-- @version             2.0.1
 -- @usage               require("Dev:Colors")
 -- @author              Speedit
 -- @release             stable; unit tests passed
@@ -194,7 +194,7 @@ local ranges = {
 }
 
 -- Module registry for use in loops.
-local modreg = {
+local registry = {
     -- Color spaces
     spaces            = { 'rgb', 'hsl' },
     ops               = { 'rotate', 'saturate', 'lighten' },
@@ -272,7 +272,7 @@ function Color.string(self)
 end
 
 -- Color space string output.
-for i, t in ipairs(modreg.spaces) do
+for i, t in ipairs(registry.spaces) do
     -- @name Color:rgb
     -- @return RGB color string.
     -- @name Color:hsl
@@ -287,7 +287,7 @@ for i, t in ipairs(modreg.spaces) do
 end
 
 -- Color property getter-setter.
-for i, p in ipairs(modreg.props) do
+for i, p in ipairs(registry.props) do
     -- Property settings.
     local n = 1 + (i - 1) % 3
     local typ = i < 4 and 'rgb' or 'hsl'
@@ -338,7 +338,7 @@ function Color.alpha(self, val)
 end
 
 -- Post-processing operators for web color properties.
-for i, o in ipairs(modreg.ops) do
+for i, o in ipairs(registry.ops) do
     -- Operator settings.
     local div = o == 'rotate' and 1 or 100
     local chk = o == 'rotate' and 'degree' or 'percentage'
@@ -417,9 +417,19 @@ end
 -- Color brightness testing.
 -- @name                Color:bright
 -- @param               {number} lim Luminosity threshold (50 default).
--- @return              {bool} Boolean for luminosity beyond threshold.
--- @see                 [[wikipedia:Relative luminance]]
+-- @return              {bool} Boolean for tone beyond threshold.
 function Color.bright(self, lim)
+    lim = lim and tonumber(lim)/100 or 0.5
+    local this = clone(self, 'hsl')
+    return this.tup[3] >= lim
+end
+
+-- Color luminance testing.
+-- @name                Color:luminant
+-- @param               {number} lim Luminance threshold (50 default).
+-- @return              {bool} Boolean for luminance beyond threshold.
+-- @see                 [[wikipedia:Relative luminance]]
+function Color.luminant(self, lim)
     -- Function arguments.
     lim = lim and tonumber(lim)/100 or 0.5
     check('hsl', lim)
@@ -710,7 +720,7 @@ function c.parse(str)
         typ = 'hsl'
     -- Conversion of web color names to RGB.
     elseif presets[str] then
-        tup = presets[str]
+        tup = mw.clone(presets[str])
         typ = 'rgb'
     -- Conversion of web color names to RGB.
     elseif str == 'transparent' then
@@ -789,6 +799,7 @@ end
 -- @param               {string} frame.args[1] Color to process.
 -- @param               {string} frame.args[2] Dark color to return.
 -- @param               {string} frame.args[3] Light color to return.
+-- @param               {string} frame.args.lum Whether luminance is used.
 -- @usage               {{#invoke:colors|text|bg|dark color|light color}}
 -- @raise               'no color supplied'
 -- @return              {string} Color string '#000000'/$2 or '#ffffff'/$3.
@@ -800,7 +811,11 @@ function c.text(frame)
             (mw.text.trim(frame.args[2] or '#000000')),
             (mw.text.trim(frame.args[3] or '#ffffff')),
         }
-        return c.parse(str):bright() and clr[1] or clr[2]
+        -- Brightness conditional.
+        local b = frame.args.lum == 'true' and
+            c.parse(str):luminant()
+            c.parse(str):bright()
+        return b and clr[1] or clr[2]
     else
         error('no color supplied')
     end
