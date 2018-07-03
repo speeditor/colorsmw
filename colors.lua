@@ -1,237 +1,232 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
--- @module  c
--- @version 1.6.0
--- @usage   require("Dev:Colors")
--- @author  Speedit
--- @release stable; unit tests passed
+-- @module              c
+-- @version             2.0.0
+-- @usage               require("Dev:Colors")
+-- @author              Speedit
+-- @release             stable; unit tests passed
 -- <nowiki>
 
--- Library variables
---- Module package.
+-- Module package.
 local c = {}
---- Color item class
---- @classmod Color
-local Color = { tup = {}, typ = '', alp = 1 }
+
+-- Configuration/cache variables.
+-- @section             colordat
 
 -- Site SASS styling parameter cache.
 local sassParams = mw.site.sassParams or {
-    ['background-dynamic'] = 'false',
-    ['background-image'] = '',
+    ['background-dynamic']      = 'false',
+    ['background-image']        = '',
     ['background-image-height'] = '0',
-    ['background-image-width'] = '0',
-    ['color-body'] = '#f6f6f6',
-    ['color-body-middle'] = '#f6f6f6',
-    ['color-buttons'] = '#a7d7f9',
-    ['color-community-header'] = '#f6f6f6',
-    ['color-header'] = '#f6f6f6',
-    ['color-links'] = '#0b0080',
-    ['color-page'] = '#ffffff',
-    ['oasisTypography'] = 0,
-    ['page-opacity'] = '100',
-    ['widthType'] = 0
+    ['background-image-width']  = '0',
+    ['color-body']              = '#f6f6f6',
+    ['color-body-middle']       = '#f6f6f6',
+    ['color-buttons']           = '#a7d7f9',
+    ['color-community-header']  = '#f6f6f6',
+    ['color-header']            = '#f6f6f6',
+    ['color-links']             = '#0b0080',
+    ['color-page']              = '#ffffff',
+    ['oasisTypography']         = 0,
+    ['page-opacity']            = '100',
+    ['widthType']               = 0
 }
 
 -- Web color RGB preset table.
 local presets = {
-    aliceblue = { 240, 248, 255 },
-    antiquewhite = { 250, 235, 215 },
-    aqua = { 0, 255, 255 },
-    aquamarine = { 127, 255, 212 },
-    azure = { 240, 255, 255 },
-    beige = { 245, 245, 220 },
-    bisque = { 255, 228, 196 },
-    black = { 0, 0, 0 },
-    blanchedalmond = { 255, 235, 205 },
-    blue = { 0, 0, 255 },
-    blueviolet = { 138, 43, 226 },
-    brown = { 165, 42, 42 },
-    burlywood = { 222, 184, 135 },
-    cadetblue = { 95, 158, 160 },
-    chartreuse = { 127, 255, 0 },
-    chocolate = { 210, 105, 30 },
-    coral = { 255, 127, 80 },
-    cornflowerblue = { 100, 149, 237 },
-    cornsilk = { 255, 248, 220 },
-    crimson = { 220, 20, 60 },
-    cyan = { 0, 255, 255 },
-    darkblue = { 0, 0, 139 },
-    darkcyan = { 0, 139, 139 },
-    darkgoldenrod = { 184, 134, 11 },
-    darkgray = { 169, 169, 169 },
-    darkgrey = { 169, 169, 169 },
-    darkgreen = { 0, 100, 0 },
-    darkkhaki = { 189, 183, 107 },
-    darkmagenta = { 139, 0, 139 },
-    darkolivegreen = { 85, 107, 47 },
-    darkorange = { 255, 140, 0 },
-    darkorchid = { 153, 50, 204 },
-    darkred = { 139, 0, 0 },
-    darksalmon = { 233, 150, 122 },
-    darkseagreen = { 143, 188, 143 },
-    darkslateblue = { 72, 61, 139 },
-    darkslategray = { 47, 79, 79 },
-    darkslategrey = { 47, 79, 79 },
-    darkturquoise = { 0, 206, 209 },
-    darkviolet = { 148, 0, 211 },
-    deeppink = { 255, 20, 147 },
-    deepskyblue = { 0, 191, 255 },
-    dimgray = { 105, 105, 105 },
-    dimgrey = { 105, 105, 105 },
-    dodgerblue = { 30, 144, 255 },
-    firebrick = { 178, 34, 34 },
-    floralwhite = { 255, 250, 240 },
-    forestgreen = { 34, 139, 34 },
-    fuchsia = { 255, 0, 255 },
-    gainsboro = { 220, 220, 220 },
-    ghostwhite = { 248, 248, 255 },
-    gold = { 255, 215, 0 },
-    goldenrod = { 218, 165, 32 },
-    gray = { 128, 128, 128 },
-    grey = { 128, 128, 128 },
-    green = { 0, 128, 0 },
-    greenyellow = { 173, 255, 47 },
-    honeydew = { 240, 255, 240 },
-    hotpink = { 255, 105, 180 },
-    indianred  = { 205, 92, 92 },
-    indigo   = { 75, 0, 130 },
-    ivory = { 255, 255, 240 },
-    khaki = { 240, 230, 140 },
-    lavender = { 230, 230, 250 },
-    lavenderblush = { 255, 240, 245 },
-    lawngreen = { 124, 252, 0 },
-    lemonchiffon = { 255, 250, 205 },
-    lightblue = { 173, 216, 230 },
-    lightcoral = { 240, 128, 128 },
-    lightcyan = { 224, 255, 255 },
-    lightgoldenrodyellow = { 250, 250, 210 },
-    lightgray = { 211, 211, 211 },
-    lightgrey = { 211, 211, 211 },
-    lightgreen = { 144, 238, 144 },
-    lightpink = { 255, 182, 193 },
-    lightsalmon = { 255, 160, 122 },
-    lightseagreen = { 32, 178, 170 },
-    lightskyblue = { 135, 206, 250 },
-    lightslategray = { 119, 136, 153 },
-    lightslategrey = { 119, 136, 153 },
-    lightsteelblue = { 176, 196, 222 },
-    lightyellow = { 255, 255, 224 },
-    lime = { 0, 255, 0 },
-    limegreen = { 50, 205, 50 },
-    linen = { 250, 240, 230 },
-    magenta = { 255, 0, 255 },
-    maroon = { 128, 0, 0 },
-    mediumaquamarine = { 102, 205, 170 },
-    mediumblue = { 0, 0, 205 },
-    mediumorchid = { 186, 85, 211 },
-    mediumpurple = { 147, 112, 219 },
-    mediumseagreen = { 60, 179, 113 },
-    mediumslateblue = { 123, 104, 238 },
-    mediumspringgreen = { 0, 250, 154 },
-    mediumturquoise = { 72, 209, 204 },
-    mediumvioletred = { 199, 21, 133 },
-    midnightblue = { 25, 25, 112 },
-    mintcream = { 245, 255, 250 },
-    mistyrose = { 255, 228, 225 },
-    moccasin = { 255, 228, 181 },
-    navajowhite = { 255, 222, 173 },
-    navy = { 0, 0, 128 },
-    oldlace = { 253, 245, 230 },
-    olive = { 128, 128, 0 },
-    olivedrab = { 107, 142, 35 },
-    orange = { 255, 165, 0 },
-    orangered = { 255, 69, 0 },
-    orchid = { 218, 112, 214 },
-    palegoldenrod = { 238, 232, 170 },
-    palegreen = { 152, 251, 152 },
-    paleturquoise = { 175, 238, 238 },
-    palevioletred = { 219, 112, 147 },
-    papayawhip = { 255, 239, 213 },
-    peachpuff = { 255, 218, 185 },
-    peru = { 205, 133, 63 },
-    pink = { 255, 192, 203 },
-    plum = { 221, 160, 221 },
-    powderblue = { 176, 224, 230 },
-    purple = { 128, 0, 128 },
-    rebeccapurple = { 102, 51, 153 },
-    red = { 255, 0, 0 },
-    rosybrown = { 188, 143, 143 },
-    royalblue = { 65, 105, 225 },
-    saddlebrown = { 139, 69, 19 },
-    salmon = { 250, 128, 114 },
-    sandybrown = { 244, 164, 96 },
-    seagreen = { 46, 139, 87 },
-    seashell = { 255, 245, 238 },
-    sienna = { 160, 82, 45 },
-    silver = { 192, 192, 192 },
-    skyblue = { 135, 206, 235 },
-    slateblue = { 106, 90, 205 },
-    slategray = { 112, 128, 144 },
-    slategrey = { 112, 128, 144 },
-    snow = { 255, 250, 250 },
-    springgreen = { 0, 255, 127 },
-    steelblue = { 70, 130, 180 },
-    tan = { 210, 180, 140 },
-    teal = { 0, 128, 128 },
-    thistle = { 216, 191, 216 },
-    tomato = { 255, 99, 71 },
-    turquoise = { 64, 224, 208 },
-    violet = { 238, 130, 238 },
-    wheat = { 245, 222, 179 },
-    white = { 255, 255, 255 },
-    whitesmoke = { 245, 245, 245 },
-    yellow = { 255, 255, 0 },
-    yellowgreen = { 154, 205, 50 }
+    aliceblue               = { 240, 248, 255 },
+    antiquewhite            = { 250, 235, 215 },
+    aqua                    = {   0, 255, 255 },
+    aquamarine              = { 127, 255, 212 },
+    azure                   = { 240, 255, 255 },
+    beige                   = { 245, 245, 220 },
+    bisque                  = { 255, 228, 196 },
+    black                   = {   0,   0,   0 },
+    blanchedalmond          = { 255, 235, 205 },
+    blue                    = {   0,   0, 255 },
+    blueviolet              = { 138,  43, 226 },
+    brown                   = { 165,  42,  42 },
+    burlywood               = { 222, 184, 135 },
+    cadetblue               = {  95, 158, 160 },
+    chartreuse              = { 127, 255,   0 },
+    chocolate               = { 210, 105, 30 },
+    coral                   = { 255, 127,  80 },
+    cornflowerblue          = { 100, 149, 237 },
+    cornsilk                = { 255, 248, 220 },
+    crimson                 = { 220,  20,  60 },
+    cyan                    = {   0, 255, 255 },
+    darkblue                = {   0,   0, 139 },
+    darkcyan                = {   0, 139, 139 },
+    darkgoldenrod           = { 184, 134,  11 },
+    darkgray                = { 169, 169, 169 },
+    darkgrey                = { 169, 169, 169 },
+    darkgreen               = {   0, 100,   0 },
+    darkkhaki               = { 189, 183, 107 },
+    darkmagenta             = { 139,   0, 139 },
+    darkolivegreen          = {  85, 107,  47 },
+    darkorange              = { 255, 140,   0 },
+    darkorchid              = { 153,  50, 204 },
+    darkred                 = { 139,   0,   0 },
+    darksalmon              = { 233, 150, 122 },
+    darkseagreen            = { 143, 188, 143 },
+    darkslateblue           = {  72,  61, 139 },
+    darkslategray           = {  47,  79,  79 },
+    darkslategrey           = {  47,  79,  79 },
+    darkturquoise           = {   0, 206, 209 },
+    darkviolet              = { 148,   0, 211 },
+    deeppink                = { 255,  20, 147 },
+    deepskyblue             = {   0, 191, 255 },
+    dimgray                 = { 105, 105, 105 },
+    dimgrey                 = { 105, 105, 105 },
+    dodgerblue              = {  30, 144, 255 },
+    firebrick               = { 178,  34,  34 },
+    floralwhite             = { 255, 250, 240 },
+    forestgreen             = {  34, 139,  34 },
+    fuchsia                 = { 255,   0, 255 },
+    gainsboro               = { 220, 220, 220 },
+    ghostwhite              = { 248, 248, 255 },
+    gold                    = { 255, 215,   0 },
+    goldenrod               = { 218, 165,  32 },
+    gray                    = { 128, 128, 128 },
+    grey                    = { 128, 128, 128 },
+    green                   = {   0, 128,   0 },
+    greenyellow             = { 173, 255,  47 },
+    honeydew                = { 240, 255, 240 },
+    hotpink                 = { 255, 105, 180 },
+    indianred               = { 205,  92,  92 },
+    indigo                  = {  75,   0, 130 },
+    ivory                   = { 255, 255, 240 },
+    khaki                   = { 240, 230, 140 },
+    lavender                = { 230, 230, 250 },
+    lavenderblush           = { 255, 240, 245 },
+    lawngreen               = { 124, 252,   0 },
+    lemonchiffon            = { 255, 250, 205 },
+    lightblue               = { 173, 216, 230 },
+    lightcoral              = { 240, 128, 128 },
+    lightcyan               = { 224, 255, 255 },
+    lightgoldenrodyellow    = { 250, 250, 210 },
+    lightgray               = { 211, 211, 211 },
+    lightgrey               = { 211, 211, 211 },
+    lightgreen              = { 144, 238, 144 },
+    lightpink               = { 255, 182, 193 },
+    lightsalmon             = { 255, 160, 122 },
+    lightseagreen           = {  32, 178, 170 },
+    lightskyblue            = { 135, 206, 250 },
+    lightslategray          = { 119, 136, 153 },
+    lightslategrey          = { 119, 136, 153 },
+    lightsteelblue          = { 176, 196, 222 },
+    lightyellow             = { 255, 255, 224 },
+    lime                    = {   0, 255,   0 },
+    limegreen               = {  50, 205,  50 },
+    linen                   = { 250, 240, 230 },
+    magenta                 = { 255,   0, 255 },
+    maroon                  = { 128,   0,   0 },
+    mediumaquamarine        = { 102, 205, 170 },
+    mediumblue              = {   0,   0, 205 },
+    mediumorchid            = { 186,  85, 211 },
+    mediumpurple            = { 147, 112, 219 },
+    mediumseagreen          = {  60, 179, 113 },
+    mediumslateblue         = { 123, 104, 238 },
+    mediumspringgreen       = {   0, 250, 154 },
+    mediumturquoise         = {  72, 209, 204 },
+    mediumvioletred         = { 199,  21, 133 },
+    midnightblue            = {  25,  25, 112 },
+    mintcream               = { 245, 255, 250 },
+    mistyrose               = { 255, 228, 225 },
+    moccasin                = { 255, 228, 181 },
+    navajowhite             = { 255, 222, 173 },
+    navy                    = {   0,   0, 128 },
+    oldlace                 = { 253, 245, 230 },
+    olive                   = { 128, 128,   0 },
+    olivedrab               = { 107, 142,  35 },
+    orange                  = { 255, 165,   0 },
+    orangered               = { 255,  69,   0 },
+    orchid                  = { 218, 112, 214 },
+    palegoldenrod           = { 238, 232, 170 },
+    palegreen               = { 152, 251, 152 },
+    paleturquoise           = { 175, 238, 238 },
+    palevioletred           = { 219, 112, 147 },
+    papayawhip              = { 255, 239, 213 },
+    peachpuff               = { 255, 218, 185 },
+    peru                    = { 205, 133,  63 },
+    pink                    = { 255, 192, 203 },
+    plum                    = { 221, 160, 221 },
+    powderblue              = { 176, 224, 230 },
+    purple                  = { 128,   0, 128 },
+    rebeccapurple           = { 102,  51, 153 },
+    red                     = { 255,   0,   0 },
+    rosybrown               = { 188, 143, 143 },
+    royalblue               = {  65, 105, 225 },
+    saddlebrown             = { 139,  69,  19 },
+    salmon                  = { 250, 128, 114 },
+    sandybrown              = { 244, 164,  96 },
+    seagreen                = {  46, 139,  87 },
+    seashell                = { 255, 245, 238 },
+    sienna                  = { 160,  82,  45 },
+    silver                  = { 192, 192, 192 },
+    skyblue                 = { 135, 206, 235 },
+    slateblue               = { 106,  90, 205 },
+    slategray               = { 112, 128, 144 },
+    slategrey               = { 112, 128, 144 },
+    snow                    = { 255, 250, 250 },
+    springgreen             = {   0, 255, 127 },
+    steelblue               = {  70, 130, 180 },
+    tan                     = { 210, 180, 140 },
+    teal                    = {   0, 128, 128 },
+    thistle                 = { 216, 191, 216 },
+    tomato                  = { 255,  99,  71 },
+    turquoise               = {  64, 224, 208 },
+    violet                  = { 238, 130, 238 },
+    wheat                   = { 245, 222, 179 },
+    white                   = { 255, 255, 255 },
+    whitesmoke              = { 245, 245, 245 },
+    yellow                  = { 255, 255,   0 },
+    yellowgreen             = { 154, 205,  50 }
 }
 
 -- Validation ranges for color types and number formats.
 local ranges = {
-    rgb = { 0, 255 },
-    hsl = { 0, 1 },
-    hue = { 0, 360 },
-    percentage = { -100, 100 },
-    prop = { 0, 100 },
-    degree = { -360, 360 }
+    rgb         = {    0, 255 },
+    hsl         = {    0,   1 },
+    hue         = {    0, 360 },
+    percentage  = { -100, 100 },
+    prop        = {    0, 100 },
+    degree      = { -360, 360 }
 }
 
--- Boundary validation for color types.
--- @param t Range type.
--- @param n Number to validate.
--- @raise 'color value $n invalid or out of $t bounds'
--- @return {bool} Validity of number.
-function check(t, n)
-    local min = ranges[t][1] -- Boundary variables
-    local max = ranges[t][2]
-    -- Boundary comparison
-    if type(n) ~= 'number' then
-        error('invalid color value input: ' .. type(n) .. ' "' .. n .. '"')
-    elseif n < min or n > max then
-        error('color value "' .. n .. '" out of "' .. t .. '" bounds')
-    end
-end
+-- Module registry for use in loops.
+local modreg = {
+    -- Color spaces
+    spaces            = { 'rgb', 'hsl' },
+    ops               = { 'rotate', 'saturate', 'lighten' },
+    props             = { 'red', 'green', 'blue', 'hue', 'sat', 'lum' },
+}
 
--- Instantiate a new Color instance.
--- @function Color:new
--- @param typ Type - color space 'hsl' or 'rgb'
--- @param tup Color tuple in HSL or RGB
--- @param alp Alpha value range 0-1
--- @raise 'no color data provided'
--- @raise 'no valid color type'
--- @return Color instance.
+-- Color item class.
+-- @type                Color
+local Color = { tup = {}, typ = '', alp = 1 }
+
+-- Color instance constructor.
+-- @function          Color:new
+-- @param             {string} typ Color space type ('hsl' or 'rgb').
+-- @param             {table} tup Color tuple in HSL or RGB
+-- @param             {number} alp Alpha value range 0-1
+-- @raise             'no color data provided'
+-- @raise             'no valid color type'
+-- @return            {table} Color instance.
 function Color.new(self, tup, typ, alp)
     local o = {}
     setmetatable(o, self)
     self.__index = self
-    -- Validate color data tuple
+    -- Validate color data tuple.
     if type(tup) ~= 'table' or #tup ~= 3 then
         error('no color data provided')
     end
-    -- Validate color type
+    -- Validate color type.
     local typdir = { rgb = 1, hsl = 1 }
     if type(typdir[typ]) == 'nil' then
         error('invalid valid color type "' .. typ ..'" specified')
     end
-    -- Validate color tuple numbers
+    -- Validate color tuple numbers.
     for i, n in ipairs(tup) do
         if i == 1 and typ == 'hsl' then
             check('hue', n)
@@ -240,145 +235,28 @@ function Color.new(self, tup, typ, alp)
         end
     end
     check('hsl', alp)
-    -- Initialise properties
+    -- Initialise properties.
     o.tup = tup
     o.typ  = typ
     o.alp = alp
     return o -- output
 end
 
--- Creation of RGB color instances.
--- @param r red   1-255
--- @param g green 1-255
--- @param b blue  1-255
--- @param a alpha 0-1
--- @see Color:new
--- @return Color instance.
-function c.fromRgb(r, g, b, a)
-    return Color:new({ r, g, b }, 'rgb', a or 1);
-end
-
--- Creation of HSL color instances.
--- @param h Hue value.        0-1
--- @param s Saturation value. 0-1
--- @param l Luminance value.  0-1
--- @param a Alpha channel.    0-1
--- @see Color:new
--- @return Color instance.    
-function c.fromHsl(h, s, l, a)
-    return Color:new({ h*360, s, l }, 'hsl', a or 1);
-end
-
--- Parsing logic for color strings.
--- @param str Valid color string.
--- @raise 'cannot parse $str'
--- @see Color:new
--- @return Color instance.
-function c.parse(str)
-    local typ
-    local tup = {}
-    local alp = 1
-    str = string.gsub(str, '%s', '')
-    -- Variable substitution
-    if c.params and c.params[string.match(str, '^%$([%w-]+)$') or ''] then
-        str = c.params[string.match(str, '^%$([%w-]+)$')]
-    elseif sassParams[string.match(str, '^%$([%w-]+)$') or ''] then
-        str = sassParams[string.match(str, '^%$([%w-]+)$')]
-    end
-    -- Subroutine for RGB/HSL color data extraction
-    function extract(str)
-        for t in string.gmatch(str, '([^,]+)') do
-            local tp = string.find(t, '%%') and
-                tonumber(string.match(t, '[^%%]+'))/100 or
-                t
-            if #tup == 3 then
-                alp = tonumber(tp)
-            else
-                tup[#tup+1] = tonumber(tp)
-            end
-        end
-    end
-    -- Parsing patterns for hex format
-    if string.match(str, '^%#[%x]+$') and ({
-        [4] = 1, [5] = 1, -- #xxxx?
-        [7] = 1, [9] = 1  -- #xxxxxxx?x?
-    })[#str] then
-        -- Hex color data extraction
-        if #str == 4 then
-            tup[1], tup[2], tup[3] = string.match(str, '^%#(%x)(%x)(%x)$')
-            tup = { tup[1] .. tup[1], tup[2] .. tup[2], tup[3] .. tup[3] }
-        elseif #str == 5 then
-            tup[1], tup[2], tup[3], alp = string.match(str, '^%#(%x)(%x)(%x)(%x)$')
-            tup = { tup[1] .. tup[1], tup[2] .. tup[2], tup[3] .. tup[3] }
-            alp = alp .. alp
-        elseif #str == 7 then
-            tup[1], tup[2], tup[3] = string.match(str, '^%#(%x%x)(%x%x)(%x%x)$')
-            alp = 1
-        elseif #str == 9 then
-            tup[1], tup[2], tup[3], alp = string.match(str, '^%#(%x%x)(%x%x)(%x%x)(%x%x)$')
-        end
-        -- RGB conversion from hex format
-        for i, t in ipairs(tup) do
-            tup[i] = tonumber(t, 16)
-        end
-        if #str == 5 or #str == 9 then
-            alp = tonumber(alp, 16)
-        end
-        typ = 'rgb'
-    -- Parsing patterns for RGB format
-    elseif string.match(str, 'rgba?%([%d,.%%]+%)') then
-        extract(string.match(str, '^rgba?%(([0-9.,%%]+)%)$'))
-        typ = 'rgb'
-    -- Parsing patterns for HSL format
-    elseif string.match(str, 'hsla?%([%d,.%%]+%)') then
-        extract(string.match(str, '^hsla?%(([0-9.,%%]+)%)$'))
-        typ = 'hsl'
-    -- Conversion of web color names to RGB
-    elseif presets[str] then
-        tup = presets[str]
-        typ = 'rgb'
-    -- Conversion of web color names to RGB
-    elseif str == 'transparent' then
-        tup = { 0, 0, 0 }
-        typ = 'rgb'
-        alp = 0
-    -- Error if string format is invalid
-    else error('cannot parse "' .. str .. '"') end
-    -- Pass data to color constructor
-    return Color:new(tup, typ, alp)
-end
-
--- Instance test function for colors.
--- @param item Color item or string.
--- @return Boolean indicating whether it is a Color instance.
-function c.instance(item)
-    local c = Color
-    local i = getmetatable(item)
-    if i then
-        for m, v in pairs(i) do
-            if not c[m] then c[m] = v end
-        end
-	    return i == c
-	else
-	    return false
-	end
-end
-
--- Color hexadecimal string output
--- @name Color:hex
--- @return Hexadecimal color string.
+-- Color hexadecimal string output.
+-- @name                Color:hex
+-- @return              {string} Hexadecimal color string.
 function Color.hex(self)
-    -- RGB conversion, variables
+    -- RGB conversion, variables.
     local this = clone(self, 'rgb')
     local hex = '#'
-    -- Hex string concatenation
+    -- Hex string concatenation.
     for i, t in ipairs(this.tup) do
-        -- Hexadecimal conversion
-        hex = #string.format('%x', t) == 1 -- leftpad
-            and hex .. '0' .. string.format('%x', t)
-            or hex .. string.format('%x', t)
+        -- Hexadecimal conversion.
+        hex = #mw.ustring.format('%x', t) == 1 -- leftpad
+            and hex .. '0' .. mw.ustring.format('%x', t)
+            or hex .. mw.ustring.format('%x', t)
     end
-    -- Alpha channel addition
+    -- Alpha channel addition.
     local alp = string.format('%x', this.alp*255)
     if alp ~= 'ff' then
         hex = #alp == 1 and hex .. '0' .. alp or hex .. alp
@@ -386,60 +264,247 @@ function Color.hex(self)
     return hex -- output
 end
 
--- Color string output as default.
--- @name Color:string
--- @return Hexadecimal 6-digit or HSLA color string.
+-- Color string default output.
+-- @name                Color:string
+-- @return              {string} Hexadecimal 6-digit or HSLA color string.
 function Color.string(self)
     return self.alp ~= 1 and self:hsl() or self:hex()
 end
 
 -- Color space string output.
-(function(spaces)
-    for i, t in ipairs(spaces) do
-        -- @name Color:rgb
-        -- @return RGB color string.
-        -- @name Color:hsl
-        -- @return HSL color string.
-        Color[t] = function(self)
-            -- Convert tuple.
-            local this = clone(self, t)
-            return this.alp ~= 1
-                and t .. 'a(' .. table.concat(this.tup, ', ') .. ', ' .. this.alp .. ')'
-                or t .. '(' .. table.concat(this.tup, ', ') .. ')'
+for i, t in ipairs(modreg.spaces) do
+    -- @name Color:rgb
+    -- @return RGB color string.
+    -- @name Color:hsl
+    -- @return HSL color string.
+    Color[t] = function(self)
+        -- Convert tuple.
+        local this = clone(self, t)
+        return this.alp ~= 1
+            and t .. 'a(' .. table.concat(this.tup, ', ') .. ', ' .. this.alp .. ')'
+            or t .. '(' .. table.concat(this.tup, ', ') .. ')'
+    end
+end
+
+-- Color property getter-setter.
+for i, p in ipairs(modreg.props) do
+    -- Property settings.
+    local n = 1 + (i - 1) % 3
+    local typ = i < 4 and 'rgb' or 'hsl'
+    local chk = i == 4 and 'hue' or typ
+    -- @name        Color:red
+    -- @param       {number} val Red value to set.         1 - 255
+    -- @name        Color:green
+    -- @param       {number} val Green value to set.       1 - 255
+    -- @name        Color:blue
+    -- @param       {number} val Blue value to set.        1 - 255
+    -- @name        Color:hue
+    -- @param       {number} val Hue value to set.         0 - 360
+    -- @name        Color:sat
+    -- @param       {number} val Saturation value to set.  0 - 100
+    -- @name        Color:lum
+    -- @param       {number} val Luminosity value to set.  0 - 100
+    -- @return      {table} Color instance.
+    Color[p] = function(self, val)
+        local this = clone(self, typ)
+        if val then
+            -- Value processing.
+            if typ == 'hsl' and n > 1 then
+                val = val / 100
+            end
+            check(chk, val)
+            -- Property setter.
+            this.tup[n] = val
+            return this -- chainable
+        else
+            -- Property getter.
+            return this.tup[n]
         end
     end
-end)({ 'rgb', 'hsl' })
+end
+
+-- Alpha getter-setter for color compositing.
+-- @name                Color:alpha
+-- @param               {number} mod Modifier 0 - 100
+-- @return              {table} Color instance.
+function Color.alpha(self, val)
+    if val then
+        check('prop', val)
+        self.alp = val / 100
+        return self
+    else
+        return self.alp
+    end
+end
+
+-- Post-processing operators for web color properties.
+for i, o in ipairs(modreg.ops) do
+    -- Operator settings.
+    local div = o == 'rotate' and 1 or 100
+    local chk = o == 'rotate' and 'degree' or 'percentage'
+    local cap = o == 'rotate' and circle or limit
+    local max = o == 'rotate' and 360 or 1
+    -- @name        Color:rotate
+    -- @param       {number} mod Modifier -360 - 360
+    -- @name        Color:saturate
+    -- @param       {number} mod Modifier -100 - 100
+    -- @name        Color:lighten
+    -- @param       {number} mod Modifier -100 - 100
+    -- @return      {table} Color instance.
+    Color[o] = function(self, mod)
+        check(chk, mod)
+        local this = clone(self, 'hsl')
+        this.tup[i] = cap(this.tup[i] + (mod / div), max)
+        return this
+    end
+end
+
+-- Opacification utility for color compositing.
+-- @name                Color:opacify
+-- @param               {number} mod Modifier -100 - 100 (100 by default)
+-- @return              {table} Color instance.
+function Color.opacify(self, mod)
+    check('percentage', mod)
+    self.alp = limit(self.alp + (mod / 100), 1)
+    return self
+end
+
+-- Color additive mixing utility.
+-- @name                Color:mix
+-- @param               {string|table} other Module-compatible color string or instance.
+-- @param               {number} weight Color weight of original (0 - 100).
+-- @return              {table} Color instance.
+function Color.mix(self, other, weight)
+    -- Conversion for strings.
+    if not c.instance(other) then
+        other = c.parse(other)
+        convert(other, 'rgb')
+    else
+        other = clone(other, 'rgb')
+    end
+    -- Mix weight, variables.
+    weight = weight or 50
+    check('prop', weight)
+    weight = weight/100
+    local this = clone(self, 'rgb')
+    -- Mixing logic.
+    for i, t in ipairs(this.tup) do
+        this.tup[i] = t * weight + other.tup[i] * (1 - weight)
+        this.tup[i] = limit(this.tup[i], 255)
+    end
+    return this -- output
+end
+
+-- Color inversion utility.
+-- name                 Color:invert
+-- @return              {table} Color instance.
+function Color.invert(self)
+    local this = clone(self, 'rgb')
+    -- Calculate 8-bit inverse of RGB tuple.
+    for i, t in ipairs(this.tup) do
+        this.tup[i] = 255 - t
+    end
+    return this -- output
+end
+
+-- Complementary color utility.
+-- @name                Color:complement
+-- @return              {table} Color instance.
+function Color.complement(self)
+    return self:rotate(180)
+end
+
+-- Color brightness testing.
+-- @name                Color:bright
+-- @param               {number} lim Luminosity threshold (50 default).
+-- @return              {bool} Boolean for luminosity beyond threshold.
+-- @see                 [[wikipedia:Relative luminance]]
+function Color.bright(self, lim)
+    -- Function arguments.
+    lim = lim and tonumber(lim)/100 or 0.5
+    check('hsl', lim)
+    -- Derived variables.
+    local hsl = clone(self, 'hsl')
+    local sat = hsl.tup[2]
+    local lum = hsl.tup[3]
+    local rgb = clone(self, 'rgb').tup
+    -- Compute linear RGB tuple.
+    for i, t in ipairs(rgb) do
+        rgb[i] = t > 0.4045 and
+            math.pow(((t + 0.05) / 1.055), 2.4) or
+            t / 12.92
+    end
+    -- Relative colorimetric luminance.
+    local rel =
+        rgb[1] * 0.2126 +
+        rgb[2] * 0.7152 +
+        rgb[3] * 0.0722
+    -- WCAG luminance contribution.
+    local quo = sat * (0.2038 * (rel - 0.5) / 0.5)
+    -- Return luma-lumi comparison.
+    return (lum >= (lim - quo))
+end
+
+-- Color status testing.
+-- @name                Color:chromatic
+-- @return              {bool} Boolean for whether the instance is a color.
+function Color.chromatic(self)
+    local this = clone(self, 'hsl')
+    return this.tup[2] ~= 0 and -- sat   = not 0
+           this.tup[3] ~= 0 and -- lum   = not 0
+           this.alp ~= 0        -- alpha = not 0
+end
+
+-- Internal color utilities.
+-- @section             colorutils
+
+-- Boundary validation for color types.
+-- @param               {string} t Range type.
+-- @param               {number} n Number to validate.
+-- @raise               'color value $n invalid or out of $t bounds'
+-- @return              {bool} Validity of number.
+function check(t, n)
+    local min = ranges[t][1] -- Boundary variables
+    local max = ranges[t][2]
+    -- Boundary comparison.
+    if type(n) ~= 'number' then
+        error('invalid color value input: ' .. type(n) .. ' "' .. n .. '"')
+    elseif n < min or n > max then
+        error('color value "' .. n .. '" out of "' .. t .. '" bounds')
+    end
+end
 
 -- Rounding utility for color tuples.
--- @param tup Color tuple.
--- @param dec Number of decimal places.
+-- @param               {number} tup Color tuple.
+-- @param               {number} dec Number of decimal places.
+-- @return              {number} Rounded tuple value.
 function round(tup, dec)
     local ord = 10^(dec or 0)
     return math.floor(tup * ord + 0.5) / ord
 end
 
 -- Cloning utility for color items.
--- @param clr Color instance.
--- @param typ Color type for clone.
--- @return New (clone) color instance.
+-- @param               {table} clr Color instance.
+-- @param               {string} typ Color type of clone.
+-- @return              {table} New (clone) color instance.
 function clone(clr, typ)
     local c = Color:new( clr.tup, clr.typ, clr.alp ) -- new color
     convert(c, typ) -- conversion
     return c -- output
 end
 
--- Limiting ranges for color processing.
--- @param val Numeric value to limit.
--- @param max Maximum value for limit boundary.
--- @return Limited value.
+-- Range limiter for color processing.
+-- @param               {number} val Numeric value to limit.
+-- @param               {number} max Maximum value for limit boundary.
+-- @return              {number} Limited value.
 function limit(val, max)
     return math.max(0, math.min(val, max))
 end
 
 -- Circular spatial processing for ranges.
--- @param val Numeric value to cycle.
--- @param max Maximum value for cycle boundary.
--- @return Cyclical positive value below max.
+-- @param               {number} val Numeric value to cycle.
+-- @param               {number} max Maximum value for cycle boundary.
+-- @return              {number} Cyclical positive value below max.
 function circle(val, max)
     if val < 0 then        -- negative; below cycle minimum
         val = val + max
@@ -449,10 +514,10 @@ function circle(val, max)
     return val -- output
 end
 
--- Color space conversion.
--- @param clr Color instance.
--- @param typ Color type to output.
--- @return Converted color instance.
+-- Color space converter.
+-- @param               {table} clr Color instance.
+-- @param               {string} typ Color type to output.
+-- @return              {table} Converted color instance.
 function convert(clr, typ)
     if clr.typ ~= typ then
         clr.typ   = typ
@@ -473,10 +538,10 @@ function convert(clr, typ)
     end
 end
 
--- RGB-HSL tuple conversion
--- @param rgb Tuple table of RGB values.
--- @return Tuple table of HSL values.
--- @see http://www.easyrgb.com/en/math.php#m_rgb_hsl
+-- RGB-HSL tuple converter.
+-- @param               {table} rgb Tuple table of RGB values.
+-- @return              {table} Tuple table of HSL values.
+-- @see                 http://www.easyrgb.com/en/math.php#m_rgb_hsl
 function rgbToHsl(rgb)
     -- Preprocessing RGB values.
     for i, t in ipairs(rgb) do
@@ -491,9 +556,9 @@ function rgbToHsl(rgb)
     local h, s, l = 0, 0, ((min + max) / 2)
     -- Calculation for chromatic colors.
     if d > 0 then
-        -- Compute saturation
+        -- Compute saturation.
         s = l < 0.5 and d / (max + min) or d / (2 - max - min)
-        -- Compute hue
+        -- Compute hue.
         h = max == r and (g - b) / d or
             max == g and 2 + (b - r)/d or
             max == b and 4 + (r - g)/d
@@ -503,17 +568,20 @@ function rgbToHsl(rgb)
     return { h * 360, s, l }
 end
 
--- HSL component conversion subroutine to RGB
--- @param p temporary variable 1
--- @param q temporary variable 2
--- @param t modifier for primary color
--- @see http://www.niwa.nu/2013/05/math-behind-colorspace-conversions-rgb-hsl/
+-- HSL component conversion subroutine to RGB.
+-- @param               {number} p Temporary variable 1.
+-- @param               {number} q Temporary variable 2.
+-- @param               {number} t Modifier for primary color.
+-- @return              {number} HSL component.
+-- @see                 http://www.niwa.nu/2013/05/math-behind-colorspace-conversions-rgb-hsl/
 function hueToRgb(p, q, t)
+    -- Normalise color modifier.
     if t < 0 then
         t = t + 1
     elseif t > 1 then
         t = t - 1
     end
+    -- Compute RGB component.
     if t < 1/6 then
         return p + (q - p) * 6 * t
     elseif t < 1/2 then
@@ -525,221 +593,205 @@ function hueToRgb(p, q, t)
     end
 end
 
--- HSL-RGB tuple conversion.
--- @param hsl Tuple table of HSL values.
--- @return Tuple table of RGB values.
+-- HSL-RGB tuple converter.
+-- @param               {table} hsl Tuple table of HSL values.
+-- @return              {table} Tuple table of RGB values.
 function hslToRgb(hsl)
-    local h, s, l = hsl[1], hsl[2], hsl[3]
+    local h, s, l = hsl[1]/360, hsl[2], hsl[3]
     local r
     local g
     local b
     local p
     local q
-    -- Achromatic handling
+    -- Achromatic handling.
     if s == 0 then
         r,g,b = l,l,l
-    -- RGB conversion
+    -- RGB conversion.
     else
-        -- Assign first temporary variable
+        -- Assign first temporary variable.
         q = l < 0.5 and l * (1 + s) or l + s - l * s
-        -- Derive second temporary variable
+        -- Derive second temporary variable.
         p = 2 * l - q
-        -- Use subroutine for RGB color values
+        -- Use subroutine for RGB color values.
         r = hueToRgb(p, q, h + 1/3)
         g = hueToRgb(p, q, h)
         b = hueToRgb(p, q, h - 1/3)
     end
-    -- Conversion to 8-bit values
+    -- Conversion to 8-bit values.
     return { r * 255, g * 255, b * 255 }
 end
 
--- Color property getter-setter.
--- @name Color:red
--- @param val Red value to set.         1 - 255
--- @name Color:green
--- @param val Green value to set.       1 - 255
--- @name Color:blue
--- @param val Blue value to set.        1 - 255
--- @name Color:hue
--- @param val Hue value to set.         0 - 360
--- @name Color:sat
--- @param val Saturation value to set.  0 - 100
--- @name Color:lum
--- @param val Luminosity value to set.  0 - 100
-(function(props)
-    for i, p in ipairs(props) do
-        local n = 1 + (i - 1) % 3
-        local typ = i < 4 and 'rgb' or 'hsl'
-        local chk = i == 4 and 'hue' or typ
-        Color[p] = function(self, val)
-            local this = clone(self, typ)
-            if val then
-                if typ == 'hsl' and n > 1 then
-                    val = val / 100
-                end
-                check(chk, val)
-                this.tup[n] = val
-                return this
+-- Package methods and members.
+-- @section             colorexp
+
+-- Creation of RGB color instances.
+-- @param               {number} r red   1-255
+-- @param               {number} g green 1-255
+-- @param               {number} b blue  1-255
+-- @param               {number} a alpha 0-1
+-- @see                 Color:new
+-- @return              {table} Color instance.
+function c.fromRgb(r, g, b, a)
+    return Color:new({ r, g, b }, 'rgb', a or 1);
+end
+
+-- Creation of HSL color instances.
+-- @param               {number} h Hue value.        0-360
+-- @param               {number} s Saturation value. 0-1
+-- @param               {number} l Luminance value.  0-1
+-- @param               {number} a Alpha channel.    0-1
+-- @see                 Color:new
+-- @return              {table} Color instance.
+function c.fromHsl(h, s, l, a)
+    return Color:new({ h, s, l }, 'hsl', a or 1);
+end
+
+-- Parsing logic for color strings.
+-- @param               {string} str Valid color string.
+-- @raise               'cannot parse $str'
+-- @see                 Color:new
+-- @return              {table} Color instance.
+function c.parse(str)
+    local typ
+    local tup = {}
+    local alp = 1
+    str, _ = mw.ustring.gsub(str, '%s', '')
+    -- Variable substitution.
+    if c.params and c.params[mw.ustring.match(str, '^%$([%w-]+)$') or ''] then
+        str = c.params[mw.ustring.match(str, '^%$([%w-]+)$')]
+    elseif sassParams[mw.ustring.match(str, '^%$([%w-]+)$') or ''] then
+        str = sassParams[mw.ustring.match(str, '^%$([%w-]+)$')]
+    end
+    -- Subroutine for RGB/HSL color data extraction.
+    function extract(str)
+        for t in mw.ustring.gmatch(str, '([^,]+)') do
+            local tp = mw.ustring.find(t, '%%') and
+                tonumber(mw.ustring.match(t, '[^%%]+'))/100 or
+                t
+            if #tup == 3 then
+                alp = tonumber(tp)
             else
-                return this.tup[n]
+                tup[#tup+1] = tonumber(tp)
             end
         end
     end
-end)({ 'red', 'green', 'blue', 'hue', 'sat', 'lum' })
-
--- Alpha getter-setter for color compositing.
--- @name Color:alpha
--- @param mod Modifier 0 - 100
--- @return Color instance.
-function Color.alpha(self, val)
-    if val then
-        check('prop', val)
-        self.alp = val / 100
-        return self
-    else
-        return self.alp
-    end
-end
-
--- Post-processing for web color properties.
-(function(ops)
-    for i, o in ipairs(ops) do
-        local div = o == 'rotate' and 1 or 100
-        local chk = o == 'rotate' and 'degree' or 'percentage'
-        local cap = o == 'rotate' and circle or limit
-        local max = o == 'rotate' and 360 or 1
-        -- @name Color:rotate
-        -- @param mod Modifier -360 - 360
-        -- @name Color:saturate
-        -- @param mod Modifier -100 - 100
-        -- @name Color:lighten
-        -- @param mod Modifier -100 - 100
-        -- @return Color instance.
-        Color[o] = function(self, mod)
-            check(chk, mod)
-            local this = clone(self, 'hsl')
-            this.tup[i] = cap(this.tup[i] + (mod / div), max)
-            return this
+    -- Parsing patterns for hex format
+    if mw.ustring.match(str, '^%#[%x]+$') and ({
+        [4] = 1, [5] = 1, -- #xxxx?
+        [7] = 1, [9] = 1  -- #xxxxxxx?x?
+    })[#str] then
+        -- Hex color data extraction
+        if #str == 4 then
+            tup[1], tup[2], tup[3] = mw.ustring.match(str, '^%#(%x)(%x)(%x)$')
+        elseif #str == 5 then
+            tup[1], tup[2], tup[3], alp = mw.ustring.match(str, '^%#(%x)(%x)(%x)(%x)$')
+            alp = alp .. alp
+        elseif #str == 7 then
+            tup[1], tup[2], tup[3] = mw.ustring.match(str, '^%#(%x%x)(%x%x)(%x%x)$')
+            alp = 1
+        elseif #str == 9 then
+            tup[1], tup[2], tup[3], alp = mw.ustring.match(str, '^%#(%x%x)(%x%x)(%x%x)(%x%x)$')
         end
-    end
-end)({ 'rotate', 'saturate', 'lighten' })
-
--- Opacification utility for color compositing.
--- @name Color:opacify
--- @param mod Modifier -100 - 100 (100 by default)
--- @return Color instance.
-function Color.opacify(self, mod)
-    check('percentage', mod)
-    self.alp = limit(self.alp + (mod / 100), 1)
-    return self
+        -- RGB conversion from hex format.
+        for i, t in ipairs(tup) do
+            tup[i] = tonumber(#t == 2 and t or t .. t, 16)
+        end
+        if #str == 5 or #str == 9 then
+            alp = tonumber(alp, 16)
+        end
+        typ = 'rgb'
+    -- Parsing patterns for RGB format.
+    elseif mw.ustring.match(str, 'rgba?%([%d,.%%]+%)') then
+        extract(mw.ustring.match(str, '^rgba?%(([0-9.,%%]+)%)$'))
+        typ = 'rgb'
+    -- Parsing patterns for HSL format.
+    elseif mw.ustring.match(str, 'hsla?%([%d,.%%]+%)') then
+        extract(mw.ustring.match(str, '^hsla?%(([0-9.,%%]+)%)$'))
+        typ = 'hsl'
+    -- Conversion of web color names to RGB.
+    elseif presets[str] then
+        tup = presets[str]
+        typ = 'rgb'
+    -- Conversion of web color names to RGB.
+    elseif str == 'transparent' then
+        tup = { 0, 0, 0 }
+        typ = 'rgb'
+        alp = 0
+    -- Error if string format is invalid.
+    else error('cannot parse "' .. str .. '"') end
+    -- Pass data to color constructor.
+    return Color:new(tup, typ, alp)
 end
 
--- Color additive mixing utility.
--- @name Color:mix
--- @param other Module-compatible color string or instance.
--- @param weight Color weight of original (0 - 100).
--- @return Color instance.
-function Color.mix(self, other, weight)
-    -- Conversion for strings
-    if not c.instance(other) then
-        other = c.parse(other)
-        convert(other, 'rgb')
-    else
-        other = clone(other, 'rgb')
-    end
-    -- Mix weight, variables
-    weight = weight or 50
-    check('prop', weight)
-    weight = weight/100
-    local this = clone(self, 'rgb')
-    -- Mixing logic
-    for i, t in ipairs(this.tup) do
-        this.tup[i] = t * weight + other.tup[i] * (1 - weight)
-        this.tup[i] = limit(this.tup[i], 255)
-    end
-    return this -- output
-end
-
--- Color inversion utility.
--- name Color:invert
--- @return Color instance.
-function Color.invert(self)
-    local this = clone(self, 'rgb')
-    -- Calculate 8-bit inverse of RGB tuple.
-    for i, t in ipairs(this.tup) do
-        this.tup[i] = 255 - t
-    end
-    return this -- output
-end
-
--- Complementary color utility.
--- @name Color:complement
--- @return Color instance.
-function Color.complement(self)
-    return self:rotate(180)
-end
-
--- Color brightness testing.
--- @name Color:bright
--- @param lim Luminosity threshold (0.5 default).
--- @return Boolean for luminosity beyond threshold.
-function Color.bright(self, lim)
-    lim = lim and tonumber(lim)/100 or 0.5
-    local this = clone(self, 'hsl')
-    return this.tup[3] >= lim
-end
-
--- Color status testing.
--- @name Color:chromatic
--- @return Boolean for whether the instance is a color.
-function Color.chromatic(self)
-    local this = clone(self, 'hsl')
-    return this.tup[2] ~= 0 and -- sat   = not 0
-           this.tup[3] ~= 0 and -- lum   = not 0
-           this.alp ~= 0        -- alpha = not 0
+-- Instance test function for colors.
+-- @param               {table|string} item Color item or string.
+-- @return              {bool} Whether the color item was instantiated.
+function c.instance(item)
+    -- Prototypes/classes to compare.
+    local c = Color
+    local i = getmetatable(item)
+    -- Test if item has a prototype.
+    if i then
+        -- Support for color mutation.
+        for m, v in pairs(i) do
+            if not c[m] then c[m] = v end
+        end
+        -- Equivalence test.
+	    return i == c
+	else
+	    -- String (can't be color instance).
+	    return false
+	end
 end
 
 -- Color SASS parameter access utility for templating.
--- @param frame Invocation frame.
--- @usage {{#invoke:colors|wikia|key}}
--- @raise 'invalid SASS parameter name supplied'
--- @return Color string aligning with parameter.
+-- @param               {table} frame Frame invocation object.
+-- @usage               {{#invoke:colors|wikia|key}}
+-- @raise               'invalid SASS parameter name supplied'
+-- @return              {string} Color string aligning with parameter.
 function c.wikia(frame)
     if frame.args and frame.args[1] then
+        -- Frame arguments.
         local key = mw.text.trim(frame.args[1])
         local val = 
             -- Assign custom parameter value.
             c.params and c.params[key] and c.params[key] or
             -- Assign default parameter value.
-            sassParams[key] and sassParams[key]
-        return val or 'transparent'
+            sassParams[key] and sassParams[key] or ''
+        return val
     else
         error('invalid SASS parameter name supplied')
     end
 end
 
 -- Color parameter parser for inline styling.
--- @param frame Invocation frame.
--- @usage {{#invoke:colors|css|styling}}
--- @raise 'no styling supplied'
--- @return CSS styling with $parameters substituted from c.params.
+-- @param               {table} frame Frame invocation object.
+-- @param               {string} frame.args[1]
+-- @usage               {{#invoke:colors|css|styling}}
+-- @raise               'no styling supplied'
+-- @return              {string} CSS styling with $parameters from c.params.
 function c.css(frame)
-    -- Check if styling has been supplied
+    -- Check if styling has been supplied.
     if frame.args and frame.args[1] then
+        -- Extract styling from frame.
         local styles = mw.text.trim(frame.args[1])
-        -- Substitution of colors
-        local output = string.gsub(styles, '%$([%w-]+)', c.params)
-        return output
+        -- Substitution of colors.
+        local out, _ = mw.ustring.gsub(styles, '%$([%w-]+)', c.params)
+        -- Output parsed styling.
+        return out
     else
         error('no styling supplied')
     end
 end
 
 -- Color generator for high-contrast text.
--- @param frame Invocation frame.
--- @usage {{#invoke:colors|text|background color|dark text color|light text color}}
--- @raise 'no color supplied'
--- @return Color string '#000000'/$2 or '#ffffff'/$3.
+-- @param               {table} frame Frame invocation object.
+-- @param               {string} frame.args[1] Color to process.
+-- @param               {string} frame.args[2] Dark color to return.
+-- @param               {string} frame.args[3] Light color to return.
+-- @usage               {{#invoke:colors|text|bg|dark color|light color}}
+-- @raise               'no color supplied'
+-- @return              {string} Color string '#000000'/$2 or '#ffffff'/$3.
 function c.text(frame)
     -- Check if styling has been supplied.
     if frame.args and frame.args[1] then
@@ -748,16 +800,14 @@ function c.text(frame)
             (mw.text.trim(frame.args[2] or '#000000')),
             (mw.text.trim(frame.args[3] or '#ffffff')),
         }
-        return c.parse(str):bright(51) and clr[1] or clr[2]
+        return c.parse(str):bright() and clr[1] or clr[2]
     else
         error('no color supplied')
     end
 end
 
--- FANDOM color parameters.
--- @name c.params
--- @usage Direct access to SASS colors in Lua modules.
--- @todo use mw.site.sassParams when [[github:Wikia/app/pull/15301]] is merged
+-- FANDOM color parameters (common SASS colors).
+-- @name                c.params
 c.params = (function(p)
     -- Remove the unneeded parameters.
     local ext_params = {
@@ -809,7 +859,7 @@ c.params = (function(p)
     return p
 end)(sassParams)
 
--- Package export.
+-- Module export.
 return c
 
 -- </nowiki>

@@ -40,8 +40,8 @@ These methods retrieve or override color properties. They accept a optional valu
 * `Color:red` - red color value (1-255)
 * `Color:green` - green color value (1-255)
 * `Color:blue` - blue color value (1-255)
-* `Color:hue` - hue color value (0-100)
-* `Color:sat` - saturation color value (0-10)
+* `Color:hue` - hue color value (0-360)
+* `Color:sat` - saturation color value (0-100)
 * `Color:lum` - luminosity value (0-100)
 * `Color:alpha` - alpha value (0-100)
 ### Processing methods
