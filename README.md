@@ -31,7 +31,7 @@ The following keys are exposed in the module package:
 ***Example usage in a Lua module***
 ```lua
 local colors = require("Dev:Colors")
-mw.log(colors.fromHsl({0.18, 74, 87}):string())
+mw.log(colors.fromHsl(0.18, 74, 87):string())
 ```
 
 ## Color item methods

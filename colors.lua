@@ -457,7 +457,7 @@ end
 
 -- Color status testing.
 -- @name                Color:chromatic
--- @return              {bool} Boolean for whether the instance is a color.
+-- @return              {bool} Boolean for color status.
 function Color.chromatic(self)
     local this = clone(self, 'hsl')
     return this.tup[2] ~= 0 and -- sat   = not 0
