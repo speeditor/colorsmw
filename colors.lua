@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module              c
--- @version             2.0.1
+-- @version             2.1.0
 -- @usage               require("Dev:Colors")
 -- @author              Speedit
 -- @release             stable; unit tests passed
@@ -31,157 +31,11 @@ local sassParams = mw.site.sassParams or {
     ['widthType']               = 0
 }
 
--- Web color RGB preset table.
-local presets = {
-    aliceblue               = { 240, 248, 255 },
-    antiquewhite            = { 250, 235, 215 },
-    aqua                    = {   0, 255, 255 },
-    aquamarine              = { 127, 255, 212 },
-    azure                   = { 240, 255, 255 },
-    beige                   = { 245, 245, 220 },
-    bisque                  = { 255, 228, 196 },
-    black                   = {   0,   0,   0 },
-    blanchedalmond          = { 255, 235, 205 },
-    blue                    = {   0,   0, 255 },
-    blueviolet              = { 138,  43, 226 },
-    brown                   = { 165,  42,  42 },
-    burlywood               = { 222, 184, 135 },
-    cadetblue               = {  95, 158, 160 },
-    chartreuse              = { 127, 255,   0 },
-    chocolate               = { 210, 105, 30 },
-    coral                   = { 255, 127,  80 },
-    cornflowerblue          = { 100, 149, 237 },
-    cornsilk                = { 255, 248, 220 },
-    crimson                 = { 220,  20,  60 },
-    cyan                    = {   0, 255, 255 },
-    darkblue                = {   0,   0, 139 },
-    darkcyan                = {   0, 139, 139 },
-    darkgoldenrod           = { 184, 134,  11 },
-    darkgray                = { 169, 169, 169 },
-    darkgrey                = { 169, 169, 169 },
-    darkgreen               = {   0, 100,   0 },
-    darkkhaki               = { 189, 183, 107 },
-    darkmagenta             = { 139,   0, 139 },
-    darkolivegreen          = {  85, 107,  47 },
-    darkorange              = { 255, 140,   0 },
-    darkorchid              = { 153,  50, 204 },
-    darkred                 = { 139,   0,   0 },
-    darksalmon              = { 233, 150, 122 },
-    darkseagreen            = { 143, 188, 143 },
-    darkslateblue           = {  72,  61, 139 },
-    darkslategray           = {  47,  79,  79 },
-    darkslategrey           = {  47,  79,  79 },
-    darkturquoise           = {   0, 206, 209 },
-    darkviolet              = { 148,   0, 211 },
-    deeppink                = { 255,  20, 147 },
-    deepskyblue             = {   0, 191, 255 },
-    dimgray                 = { 105, 105, 105 },
-    dimgrey                 = { 105, 105, 105 },
-    dodgerblue              = {  30, 144, 255 },
-    firebrick               = { 178,  34,  34 },
-    floralwhite             = { 255, 250, 240 },
-    forestgreen             = {  34, 139,  34 },
-    fuchsia                 = { 255,   0, 255 },
-    gainsboro               = { 220, 220, 220 },
-    ghostwhite              = { 248, 248, 255 },
-    gold                    = { 255, 215,   0 },
-    goldenrod               = { 218, 165,  32 },
-    gray                    = { 128, 128, 128 },
-    grey                    = { 128, 128, 128 },
-    green                   = {   0, 128,   0 },
-    greenyellow             = { 173, 255,  47 },
-    honeydew                = { 240, 255, 240 },
-    hotpink                 = { 255, 105, 180 },
-    indianred               = { 205,  92,  92 },
-    indigo                  = {  75,   0, 130 },
-    ivory                   = { 255, 255, 240 },
-    khaki                   = { 240, 230, 140 },
-    lavender                = { 230, 230, 250 },
-    lavenderblush           = { 255, 240, 245 },
-    lawngreen               = { 124, 252,   0 },
-    lemonchiffon            = { 255, 250, 205 },
-    lightblue               = { 173, 216, 230 },
-    lightcoral              = { 240, 128, 128 },
-    lightcyan               = { 224, 255, 255 },
-    lightgoldenrodyellow    = { 250, 250, 210 },
-    lightgray               = { 211, 211, 211 },
-    lightgrey               = { 211, 211, 211 },
-    lightgreen              = { 144, 238, 144 },
-    lightpink               = { 255, 182, 193 },
-    lightsalmon             = { 255, 160, 122 },
-    lightseagreen           = {  32, 178, 170 },
-    lightskyblue            = { 135, 206, 250 },
-    lightslategray          = { 119, 136, 153 },
-    lightslategrey          = { 119, 136, 153 },
-    lightsteelblue          = { 176, 196, 222 },
-    lightyellow             = { 255, 255, 224 },
-    lime                    = {   0, 255,   0 },
-    limegreen               = {  50, 205,  50 },
-    linen                   = { 250, 240, 230 },
-    magenta                 = { 255,   0, 255 },
-    maroon                  = { 128,   0,   0 },
-    mediumaquamarine        = { 102, 205, 170 },
-    mediumblue              = {   0,   0, 205 },
-    mediumorchid            = { 186,  85, 211 },
-    mediumpurple            = { 147, 112, 219 },
-    mediumseagreen          = {  60, 179, 113 },
-    mediumslateblue         = { 123, 104, 238 },
-    mediumspringgreen       = {   0, 250, 154 },
-    mediumturquoise         = {  72, 209, 204 },
-    mediumvioletred         = { 199,  21, 133 },
-    midnightblue            = {  25,  25, 112 },
-    mintcream               = { 245, 255, 250 },
-    mistyrose               = { 255, 228, 225 },
-    moccasin                = { 255, 228, 181 },
-    navajowhite             = { 255, 222, 173 },
-    navy                    = {   0,   0, 128 },
-    oldlace                 = { 253, 245, 230 },
-    olive                   = { 128, 128,   0 },
-    olivedrab               = { 107, 142,  35 },
-    orange                  = { 255, 165,   0 },
-    orangered               = { 255,  69,   0 },
-    orchid                  = { 218, 112, 214 },
-    palegoldenrod           = { 238, 232, 170 },
-    palegreen               = { 152, 251, 152 },
-    paleturquoise           = { 175, 238, 238 },
-    palevioletred           = { 219, 112, 147 },
-    papayawhip              = { 255, 239, 213 },
-    peachpuff               = { 255, 218, 185 },
-    peru                    = { 205, 133,  63 },
-    pink                    = { 255, 192, 203 },
-    plum                    = { 221, 160, 221 },
-    powderblue              = { 176, 224, 230 },
-    purple                  = { 128,   0, 128 },
-    rebeccapurple           = { 102,  51, 153 },
-    red                     = { 255,   0,   0 },
-    rosybrown               = { 188, 143, 143 },
-    royalblue               = {  65, 105, 225 },
-    saddlebrown             = { 139,  69,  19 },
-    salmon                  = { 250, 128, 114 },
-    sandybrown              = { 244, 164,  96 },
-    seagreen                = {  46, 139,  87 },
-    seashell                = { 255, 245, 238 },
-    sienna                  = { 160,  82,  45 },
-    silver                  = { 192, 192, 192 },
-    skyblue                 = { 135, 206, 235 },
-    slateblue               = { 106,  90, 205 },
-    slategray               = { 112, 128, 144 },
-    slategrey               = { 112, 128, 144 },
-    snow                    = { 255, 250, 250 },
-    springgreen             = {   0, 255, 127 },
-    steelblue               = {  70, 130, 180 },
-    tan                     = { 210, 180, 140 },
-    teal                    = {   0, 128, 128 },
-    thistle                 = { 216, 191, 216 },
-    tomato                  = { 255,  99,  71 },
-    turquoise               = {  64, 224, 208 },
-    violet                  = { 238, 130, 238 },
-    wheat                   = { 245, 222, 179 },
-    white                   = { 255, 255, 255 },
-    whitesmoke              = { 245, 245, 245 },
-    yellow                  = { 255, 255,   0 },
-    yellowgreen             = { 154, 205,  50 }
-}
+-- Web color RGB presets.
+local presets = mw.loadData('Module:Colors/presets')
+
+-- Error message data.
+local i18n = require('Dev:I18n').loadMessages('Colors')
 
 -- Validation ranges for color types and number formats.
 local ranges = {
@@ -219,12 +73,12 @@ function Color.new(self, tup, typ, alp)
     self.__index = self
     -- Validate color data tuple.
     if type(tup) ~= 'table' or #tup ~= 3 then
-        error('no color data provided')
+        error(i18n:msg('no-data'))
     end
     -- Validate color type.
     local typdir = { rgb = 1, hsl = 1 }
     if type(typdir[typ]) == 'nil' then
-        error('invalid valid color type "' .. typ ..'" specified')
+        error(i18n:msg('invalid-type', typ))
     end
     -- Validate color tuple numbers.
     for i, n in ipairs(tup) do
@@ -478,9 +332,9 @@ function check(t, n)
     local max = ranges[t][2]
     -- Boundary comparison.
     if type(n) ~= 'number' then
-        error('invalid color value input: ' .. type(n) .. ' "' .. n .. '"')
+        error(i18n:msg('invalid-value', type(n), tostring(n)))
     elseif n < min or n > max then
-        error('color value "' .. n .. '" out of "' .. t .. '" bounds')
+        error(i18n:msg('out-of-bounds', n, t))
     end
 end
 
@@ -541,9 +395,9 @@ function convert(clr, typ)
         if clr.typ == 'rgb' then
             clr.tup[i] = round(clr.tup[i], 0)
         elseif clr.typ == 'hsl' then
-            clr.tup[i] = i == 1 and
-                round(clr.tup[i], 0) or
-                round(clr.tup[i], 2)
+            clr.tup[i] = i == 1
+                and round(clr.tup[i], 0)
+                or  round(clr.tup[i], 2)
         end
     end
 end
@@ -722,13 +576,13 @@ function c.parse(str)
     elseif presets[str] then
         tup = mw.clone(presets[str])
         typ = 'rgb'
-    -- Conversion of web color names to RGB.
+    -- Support for 'transparent'.
     elseif str == 'transparent' then
         tup = { 0, 0, 0 }
         typ = 'rgb'
         alp = 0
     -- Error if string format is invalid.
-    else error('cannot parse "' .. str .. '"') end
+    else error(i18n:msg('unparse', (str or ''))) end
     -- Pass data to color constructor.
     return Color:new(tup, typ, alp)
 end
@@ -765,12 +619,15 @@ function c.wikia(frame)
         local key = mw.text.trim(frame.args[1])
         local val = 
             -- Assign custom parameter value.
-            c.params and c.params[key] and c.params[key] or
+            c.params and c.params[key] and
+                c.params[key]
             -- Assign default parameter value.
-            sassParams[key] and sassParams[key] or ''
+            or  sassParams[key] and
+                sassParams[key]
+            or ''
         return val
     else
-        error('invalid SASS parameter name supplied')
+        error(i18n:msg('invalid-param'))
     end
 end
 
@@ -790,7 +647,7 @@ function c.css(frame)
         -- Output parsed styling.
         return out
     else
-        error('no styling supplied')
+        error(i18n:msg('no-style'))
     end
 end
 
@@ -812,12 +669,12 @@ function c.text(frame)
             (mw.text.trim(frame.args[3] or '#ffffff')),
         }
         -- Brightness conditional.
-        local b = frame.args.lum == 'true' and
-            c.parse(str):luminant()
-            c.parse(str):bright()
+        local b = frame.args.lum == 'true'
+            and c.parse(str):luminant()
+            or  c.parse(str):bright()
         return b and clr[1] or clr[2]
     else
-        error('no color supplied')
+        error(i18n:msg('no-color'))
     end
 end
 
@@ -842,20 +699,20 @@ c.params = (function(p)
         ['page-opacity'] = tonumber(p['page-opacity'])/100,
         ['color-text'] = page_bright and '#3a3a3a' or '#d5d4d4',
         ['color-contrast'] = page_bright and '#000000' or '#ffffff',
-        ['color-page-border'] = page_bright and
-            c.parse('$color-page'):mix('#000', 80):string() or
-            c.parse('$color-page'):mix('#fff', 80):string(),
+        ['color-page-border'] = page_bright
+            and c.parse('$color-page'):mix('#000', 80):string()
+            or  c.parse('$color-page'):mix('#fff', 80):string(),
         ['is-dark-wiki'] = not page_bright,
         ['infobox-background'] =
             c.parse('$color-page'):mix('$color-links', pi_bg_o):string(),
         ['infobox-section-header-background'] =
             c.parse('$color-page'):mix('$color-links', 75):string(),
-        ['color-community-header-text'] = header_bright and
-            '#000000' or
-            '#ffffff',
-        ['color-button-highlight'] = buttons_bright and
-            c.parse('$color-buttons'):mix('#000', 80):string() or
-            c.parse('$color-buttons'):mix('#fff', 80):string(),
+        ['color-community-header-text'] = header_bright
+            and '#000000'
+            or  '#ffffff',
+        ['color-button-highlight'] = buttons_bright
+            and c.parse('$color-buttons'):mix('#000', 80):string()
+            or  c.parse('$color-buttons'):mix('#fff', 80):string(),
         ['color-button-text'] = buttons_bright and '#000000' or '#ffffff',
         ['dropdown-background-color'] = (function(p)
             if page_bright_90 then

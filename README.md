@@ -1,7 +1,7 @@
 [![GitHub release](https://img.shields.io/github/release/speeditor/colorsmw/all.svg?style=flat-square&longCache=true)](https://github.com/speeditor/colorsmw/releases) [![Lua](https://img.shields.io/badge/lua%20-5.1.5-blue.svg?style=flat-square&longCache=true)](https://dev.wikia.com/wiki/Lua_reference_manual) [![UnitTests](https://img.shields.io/badge/unit%20tests-passing-green.svg?style=flat-square&longCache=true)](https://dev.wikia.com/wiki/Module_talk:Colors/testcases)
 
 # colorsmw
-Scribunto library for embedded color processing in the FANDOM environment.
+Scribunto library for embedded color processing in the FANDOM environment ([extended documentation](https://dev.wikia.com/wiki/Global_Lua_Modules/Colors)).
 
 This Lua project is a **direct port** of https://dev.wikia.com/wiki/Colors (a JavaScript library by Pecoes), with support for alpha values.
 
@@ -69,5 +69,4 @@ These methods return a boolean for use in Lua logic.
 * `Color:chromatic` - color saturation and visibility status for color item
 
 # TODO
-* Detailed documentation on FANDOM
-* i18n for error system
+* More detailed documentation on FANDOM
