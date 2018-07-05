@@ -574,11 +574,12 @@ function c.parse(str)
         typ = 'hsl'
     -- Conversion of web color names to RGB.
     elseif presets[str] then
-        tup = mw.clone(presets[str])
+        local p = presets[str]
+        tup = { p[1], p[2], p[3] }
         typ = 'rgb'
     -- Support for 'transparent'.
     elseif str == 'transparent' then
-        tup = { 0, 0, 0 }
+        tup = {    0,    0,    0 }
         typ = 'rgb'
         alp = 0
     -- Error if string format is invalid.
