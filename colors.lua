@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module              c
--- @version             2.1.0
+-- @version             2.1.1
 -- @usage               require("Dev:Colors")
 -- @author              Speedit
 -- @release             stable; unit tests passed
@@ -615,6 +615,9 @@ end
 -- @raise               'invalid SASS parameter name supplied'
 -- @return              {string} Color string aligning with parameter.
 function c.wikia(frame)
+    -- User language.
+    i18n:useUserLang(frame)
+    -- Check if parameter name was supplied.
     if frame.args and frame.args[1] then
         -- Frame arguments.
         local key = mw.text.trim(frame.args[1])
@@ -639,6 +642,8 @@ end
 -- @raise               'no styling supplied'
 -- @return              {string} CSS styling with $parameters from c.params.
 function c.css(frame)
+    -- User language.
+    i18n:useUserLang(frame)
     -- Check if styling has been supplied.
     if frame.args and frame.args[1] then
         -- Extract styling from frame.
@@ -662,8 +667,11 @@ end
 -- @raise               'no color supplied'
 -- @return              {string} Color string '#000000'/$2 or '#ffffff'/$3.
 function c.text(frame)
-    -- Check if styling has been supplied.
+    -- User language.
+    i18n:useUserLang(frame)
+    -- Check if a color has been supplied.
     if frame.args and frame.args[1] then
+        -- Frame arguments.
         local str = mw.text.trim(frame.args[1])
         local clr = {
             (mw.text.trim(frame.args[2] or '#000000')),
