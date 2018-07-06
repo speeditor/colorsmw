@@ -32,7 +32,7 @@ local sassParams = mw.site.sassParams or {
 }
 
 -- Web color RGB presets.
-local presets = mw.loadData('Module:Colors/presets')
+local presets = mw.loadData('Dev:Colors/presets')
 
 -- Error message data.
 local i18n = require('Dev:I18n').loadMessages('Colors')
