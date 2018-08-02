@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module              c
--- @version             2.1.1
+-- @version             2.1.4
 -- @usage               require("Dev:Colors")
 -- @author              Speedit
 -- @release             stable; unit tests passed
@@ -49,10 +49,9 @@ local ranges = {
 
 -- Module registry for use in loops.
 local registry = {
-    -- Color spaces
-    spaces            = { 'rgb', 'hsl' },
-    ops               = { 'rotate', 'saturate', 'lighten' },
-    props             = { 'red', 'green', 'blue', 'hue', 'sat', 'lum' },
+    spaces = { 'rgb', 'hsl' },
+    ops    = { 'rotate', 'saturate', 'lighten' },
+    props  = { 'red', 'green', 'blue', 'hue', 'sat', 'lum' },
 }
 
 -- Color item class.

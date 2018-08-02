@@ -12,7 +12,7 @@
         ["out-of-bounds"] = ""
     }
 ]]--
--- @version             2.1.0
+-- @version             2.1.4
 -- @submodule
 return {
     ["en"] = {
