@@ -4,7 +4,7 @@
 --[[
     colorname               = { rrr, ggg, bbb },
 ]]--
--- @version             2.1.0
+-- @version             2.1.5
 -- @submodule
 return {
     aliceblue               = { 240, 248, 255 },

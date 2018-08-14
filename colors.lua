@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module              c
--- @version             2.1.4
+-- @version             2.1.5
 -- @usage               require("Dev:Colors")
 -- @author              Speedit
 -- @release             stable; unit tests passed
@@ -614,8 +614,6 @@ end
 -- @raise               'invalid SASS parameter name supplied'
 -- @return              {string} Color string aligning with parameter.
 function c.wikia(frame)
-    -- User language.
-    i18n:useUserLang(frame)
     -- Check if parameter name was supplied.
     if frame.args and frame.args[1] then
         -- Frame arguments.
@@ -628,7 +626,7 @@ function c.wikia(frame)
             or  sassParams[key] and
                 sassParams[key]
             or ''
-        return val
+        return mw.text.trim(val)
     else
         error(i18n:msg('invalid-param'))
     end
@@ -641,16 +639,14 @@ end
 -- @raise               'no styling supplied'
 -- @return              {string} CSS styling with $parameters from c.params.
 function c.css(frame)
-    -- User language.
-    i18n:useUserLang(frame)
     -- Check if styling has been supplied.
     if frame.args and frame.args[1] then
         -- Extract styling from frame.
         local styles = mw.text.trim(frame.args[1])
         -- Substitution of colors.
-        local out, _ = mw.ustring.gsub(styles, '%$([%w-]+)', c.params)
+        local o = (mw.ustring.gsub(styles, '%$([%w-]+)', c.params))
         -- Output parsed styling.
-        return out
+        return o
     else
         error(i18n:msg('no-style'))
     end
@@ -666,8 +662,6 @@ end
 -- @raise               'no color supplied'
 -- @return              {string} Color string '#000000'/$2 or '#ffffff'/$3.
 function c.text(frame)
-    -- User language.
-    i18n:useUserLang(frame)
     -- Check if a color has been supplied.
     if frame.args and frame.args[1] then
         -- Frame arguments.
@@ -677,7 +671,10 @@ function c.text(frame)
             (mw.text.trim(frame.args[3] or '#ffffff')),
         }
         -- Brightness conditional.
-        local b = frame.args.lum == 'true'
+        local b = type(({
+                    ['1']    = 1,
+                    ['true'] = 1
+                })[frame.args.lum or '']) ~= 'nil'
             and c.parse(str):luminant()
             or  c.parse(str):bright()
         return b and clr[1] or clr[2]

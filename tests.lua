@@ -1,9 +1,10 @@
 -- Unit tests for colorsmw library.
--- @usage  Dependent on UnitTests Scribunto module.
---         https://dev.wikia.com/wiki/Global_Lua_Modules/UnitTests
+-- @usage  Dependent on Testharness Scribunto module.
+--         https://dev.wikia.com/index.php?title=Module:Testharness&action=raw
 -- @see    Unit test report:
---         https://dev.wikia.com/wiki/Module_talk:Colors/testcases
+--         https://dev.wikia.com/index.php?title=Module_talk:Colors/testcases
 -- @submodule
+-- <nowiki>
 return {
     wikia = {
         options = {
@@ -58,3 +59,4 @@ return {
         }
     }
 }
+-- </nowiki>
