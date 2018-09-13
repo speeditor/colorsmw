@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module              c
--- @version             2.1.5
+-- @version             2.2.0
 -- @usage               require("Dev:Colors")
 -- @author              Speedit
 -- @release             stable; unit tests passed
@@ -133,6 +133,13 @@ for i, t in ipairs(registry.spaces) do
     Color[t] = function(self)
         -- Convert tuple.
         local this = clone(self, t)
+        if t == 'hsl' then
+            for i, t in ipairs(this.tup) do
+                if ({[2]=1, [3]=1})[i] then
+                    this.tup[i] = tostring(t*100) .. '%'
+                end
+            end
+        end
         return this.alp ~= 1
             and t .. 'a(' .. table.concat(this.tup, ', ') .. ', ' .. this.alp .. ')'
             or t .. '(' .. table.concat(this.tup, ', ') .. ')'
@@ -644,7 +651,7 @@ function c.css(frame)
         -- Extract styling from frame.
         local styles = mw.text.trim(frame.args[1])
         -- Substitution of colors.
-        local o = (mw.ustring.gsub(styles, '%$([%w-]+)', c.params))
+        local o, _ = mw.ustring.gsub(styles, '%$([%w-]+)', c.params)
         -- Output parsed styling.
         return o
     else
