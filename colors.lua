@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module              c
--- @version             2.2.0
+-- @version             2.3.0
 -- @usage               require("Dev:Colors")
 -- @author              Speedit
 -- @release             stable; unit tests passed
@@ -10,7 +10,7 @@
 -- Module package.
 local c = {}
 
--- Configuration/cache variables.
+-- Module utilites, configuration/cache variables.
 -- @section             colordat
 
 -- Site SASS styling parameter cache.
@@ -26,9 +26,6 @@ local sassParams = mw.site.sassParams or {
     ['color-header']            = '#f6f6f6',
     ['color-links']             = '#0b0080',
     ['color-page']              = '#ffffff',
-    ['oasisTypography']         = 0,
-    ['page-opacity']            = '100',
-    ['widthType']               = 0
 }
 
 -- Web color RGB presets.
@@ -56,7 +53,7 @@ local registry = {
 
 -- Color item class.
 -- @type                Color
-local Color = { tup = {}, typ = '', alp = 1 }
+local Color = { tup = {}, typ = '', alp = 1, __type = 'color' }
 
 -- Color instance constructor.
 -- @function          Color:new
@@ -499,7 +496,7 @@ end
 -- @param               {number} g green 1-255
 -- @param               {number} b blue  1-255
 -- @param               {number} a alpha 0-1
--- @see                 Color:new
+-- @see                 Color:newco
 -- @return              {table} Color instance.
 function c.fromRgb(r, g, b, a)
     return Color:new({ r, g, b }, 'rgb', a or 1);
@@ -545,12 +542,12 @@ function c.parse(str)
             end
         end
     end
-    -- Parsing patterns for hex format
+    -- Parsing patterns for hex format.
     if mw.ustring.match(str, '^%#[%x]+$') and ({
         [4] = 1, [5] = 1, -- #xxxx?
         [7] = 1, [9] = 1  -- #xxxxxxx?x?
     })[#str] then
-        -- Hex color data extraction
+        -- Hex color data extraction.
         if #str == 4 then
             tup[1], tup[2], tup[3] = mw.ustring.match(str, '^%#(%x)(%x)(%x)$')
         elseif #str == 5 then
@@ -598,17 +595,12 @@ end
 -- @param               {table|string} item Color item or string.
 -- @return              {bool} Whether the color item was instantiated.
 function c.instance(item)
-    -- Prototypes/classes to compare.
-    local c = Color
+    -- Prototype to compare.
     local i = getmetatable(item)
     -- Test if item has a prototype.
     if i then
-        -- Support for color mutation.
-        for m, v in pairs(i) do
-            if not c[m] then c[m] = v end
-        end
-        -- Equivalence test.
-	    return i == c
+        -- Internal type test.
+	    return (i.__type == 'color')
 	else
 	    -- String (can't be color instance).
 	    return false
@@ -622,21 +614,20 @@ end
 -- @return              {string} Color string aligning with parameter.
 function c.wikia(frame)
     -- Check if parameter name was supplied.
-    if frame.args and frame.args[1] then
-        -- Frame arguments.
-        local key = mw.text.trim(frame.args[1])
-        local val = 
-            -- Assign custom parameter value.
-            c.params and c.params[key] and
-                c.params[key]
-            -- Assign default parameter value.
-            or  sassParams[key] and
-                sassParams[key]
-            or ''
-        return mw.text.trim(val)
-    else
+    if not frame or not frame.args[1] then
         error(i18n:msg('invalid-param'))
     end
+    -- Frame arguments.
+    local key = mw.text.trim(frame.args[1])
+    local val = 
+        -- Assign custom parameter value.
+        c.params and c.params[key] and
+            c.params[key]
+        -- Assign default parameter value.
+        or  sassParams[key] and
+            sassParams[key]
+        or ''
+    return mw.text.trim(val)
 end
 
 -- Color parameter parser for inline styling.
@@ -647,16 +638,15 @@ end
 -- @return              {string} CSS styling with $parameters from c.params.
 function c.css(frame)
     -- Check if styling has been supplied.
-    if frame.args and frame.args[1] then
-        -- Extract styling from frame.
-        local styles = mw.text.trim(frame.args[1])
-        -- Substitution of colors.
-        local o, _ = mw.ustring.gsub(styles, '%$([%w-]+)', c.params)
-        -- Output parsed styling.
-        return o
-    else
+    if not frame.args[1] then
         error(i18n:msg('no-style'))
     end
+    -- Extract styling from frame.
+    local styles = mw.text.trim(frame.args[1])
+    -- Substitution of colors.
+    local o, _ = mw.ustring.gsub(styles, '%$([%w-]+)', c.params)
+    -- Output parsed styling.
+    return o
 end
 
 -- Color generator for high-contrast text.
@@ -670,24 +660,47 @@ end
 -- @return              {string} Color string '#000000'/$2 or '#ffffff'/$3.
 function c.text(frame)
     -- Check if a color has been supplied.
-    if frame.args and frame.args[1] then
-        -- Frame arguments.
-        local str = mw.text.trim(frame.args[1])
-        local clr = {
-            (mw.text.trim(frame.args[2] or '#000000')),
-            (mw.text.trim(frame.args[3] or '#ffffff')),
-        }
-        -- Brightness conditional.
-        local b = type(({
-                    ['1']    = 1,
-                    ['true'] = 1
-                })[frame.args.lum or '']) ~= 'nil'
-            and c.parse(str):luminant()
-            or  c.parse(str):bright()
-        return b and clr[1] or clr[2]
-    else
+    if not frame or not frame.args[1] then
         error(i18n:msg('no-color'))
     end
+    -- Frame arguments.
+    local str = mw.text.trim(frame.args[1])
+    local clr = {
+        (mw.text.trim(frame.args[2] or '#000000')),
+        (mw.text.trim(frame.args[3] or '#ffffff')),
+    }
+    -- Brightness conditional.
+    local b = type(({
+                ['1']    = 1,
+                ['true'] = 1
+            })[frame.args.lum or '']) ~= 'nil'
+        and c.parse(str):luminant()
+        or  c.parse(str):bright()
+    return b and clr[1] or clr[2]
+end
+
+-- Template wrapper for [[Template:Colors]].
+-- @param               {table} frame Frame invocation object.
+-- @usage               {{#invoke:colors|main}}
+-- @raise               'no color supplied'
+-- @return              {string} Color string '#000000'/$2 or '#ffffff'/$3.
+function c.main(frame)
+    -- Extract arguments.
+    local mt = frame:getParent().args
+    local args = {}
+    for p, v in pairs(mt) do args[p] = v end
+    -- Extract function name as first argument.
+    local fn_name = args[1] and table.remove(args, 1)
+    -- Check for function argument.
+    if fn_name == nil then
+        error(mw.message.new('scribunto-common-nofunction'):plain())
+    end
+    -- Check function exists.
+    if c[fn_name] == nil then
+        error(mw.message.new('scribunto-common-nosuchfunction'):plain())
+    end
+    -- Execute function if it does.
+    return c[fn_name]{ args = args }
 end
 
 -- FANDOM color parameters (common SASS colors).
@@ -696,7 +709,8 @@ c.params = (function(p)
     -- Remove the unneeded parameters.
     local ext_params = {
         'oasisTypography',
-        'widthType'
+        'widthType',
+        'page-opacity'
     }
     for k, c in ipairs(ext_params) do p[c] = nil end
     -- Brightness conditionals for post-processing.
@@ -707,38 +721,37 @@ c.params = (function(p)
     -- Derived opacity values.
     local pi_bg_o = page_bright and 90 or 85
     -- Derived colors and variables.
-    local d = {
-        ['page-opacity'] = tonumber(p['page-opacity'])/100,
-        ['color-text'] = page_bright and '#3a3a3a' or '#d5d4d4',
-        ['color-contrast'] = page_bright and '#000000' or '#ffffff',
-        ['color-page-border'] = page_bright
-            and c.parse('$color-page'):mix('#000', 80):string()
-            or  c.parse('$color-page'):mix('#fff', 80):string(),
-        ['is-dark-wiki'] = not page_bright,
-        ['infobox-background'] =
-            c.parse('$color-page'):mix('$color-links', pi_bg_o):string(),
-        ['infobox-section-header-background'] =
-            c.parse('$color-page'):mix('$color-links', 75):string(),
-        ['color-community-header-text'] = header_bright
-            and '#000000'
-            or  '#ffffff',
-        ['color-button-highlight'] = buttons_bright
+    --- Main derived parameters.
+    p['color-text'] = page_bright and '#3a3a3a' or '#d5d4d4'
+    p['color-contrast'] = page_bright and '#000000' or '#ffffff'
+    p['color-page-border'] = page_bright
+        and c.parse('$color-page'):mix('#000', 80):string()
+        or  c.parse('$color-page'):mix('#fff', 80):string()
+    p['color-button-highlight'] = buttons_bright
             and c.parse('$color-buttons'):mix('#000', 80):string()
-            or  c.parse('$color-buttons'):mix('#fff', 80):string(),
-        ['color-button-text'] = buttons_bright and '#000000' or '#ffffff',
-        ['dropdown-background-color'] = (function(p)
-            if page_bright_90 then
-                return '#ffffff'
-            elseif page_bright then
-                return p:mix('#fff', 90):string()
-            else
-                return p:mix('#000', 90):string()
-            end
-        end)(c.parse('$color-page')),
-        ['dropdown-menu-highlight'] = c.parse('$color-links'):alpha(10):rgb()
-    }
-    -- Concatenate derived and default SASS parameters.
-    for k, c in pairs(d) do p[k] = c end
+            or  c.parse('$color-buttons'):mix('#fff', 80):string()
+    p['color-button-text'] = buttons_bright and '#000000' or '#ffffff'
+    --- PortableInfobox color parameters.
+    p['infobox-background'] =
+        c.parse('$color-page'):mix('$color-links', pi_bg_o):string()
+    p['infobox-section-header-background'] =
+        c.parse('$color-page'):mix('$color-links', 75):string()
+    --- CommunityHeader color parameters.
+    p['color-community-header-text'] = header_bright
+        and '#000000'
+        or  '#ffffff'
+    p['dropdown-background-color'] = (function(p)
+        if page_bright_90 then
+            return '#ffffff'
+        elseif page_bright then
+            return p:mix('#fff', 90):string()
+        else
+            return p:mix('#000', 90):string()
+        end
+    end)(c.parse('$color-page'))
+    p['dropdown-menu-highlight'] = c.parse('$color-links'):alpha(10):rgb()
+    --- Custom SASS parameters.
+    p['is-dark-wiki'] = not page_bright
     -- Export SASS parameter table from SEFE.
     return p
 end)(sassParams)
