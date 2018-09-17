@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module              c
--- @version             2.3.0
+-- @version             2.3.1
 -- @usage               require("Dev:Colors")
 -- @author              Speedit
 -- @release             stable; unit tests passed
@@ -682,25 +682,26 @@ end
 -- Template wrapper for [[Template:Colors]].
 -- @param               {table} frame Frame invocation object.
 -- @usage               {{#invoke:colors|main}}
--- @raise               'no color supplied'
--- @return              {string} Color string '#000000'/$2 or '#ffffff'/$3.
 function c.main(frame)
     -- Extract arguments.
-    local mt = frame:getParent().args
-    local args = {}
-    for p, v in pairs(mt) do args[p] = v end
+    local parentFrame = frame:getParent()
+    local templateArgs = {}
+    for p, v in pairs(parentFrame.args) do
+        templateArgs[p] = v
+    end
     -- Extract function name as first argument.
-    local fn_name = args[1] and table.remove(args, 1)
+    local fn = templateArgs[1] and table.remove(templateArgs, 1)
     -- Check for function argument.
-    if fn_name == nil then
-        error(mw.message.new('scribunto-common-nofunction'):plain())
+    if fn == nil then
+        error((mw.ustring.gsub(mw.ustring.match(mw.message.new('scribunto-common-nofunction'):plain(), ':%s(.*)%p$'), '^.', mw.ustring.lower)))
     end
     -- Check function exists.
-    if c[fn_name] == nil then
-        error(mw.message.new('scribunto-common-nosuchfunction'):plain())
+    if c[fn] == nil then
+        error((mw.ustring.gsub(mw.ustring.match(mw.message.new('scribunto-common-nosuchfunction'):plain(), ':%s(.*)%p$'), '^.', mw.ustring.lower)))
     end
     -- Execute function if it does.
-    return c[fn_name]{ args = args }
+    parentFrame.args = templateArgs
+    return c[fn](parentFrame)
 end
 
 -- FANDOM color parameters (common SASS colors).

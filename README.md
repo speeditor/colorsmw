@@ -15,6 +15,7 @@ local colors = require("Dev:Colors")
 
 ## Package members and methods
 The following keys are exposed in the module package:
+* `colors.main` - template wrapper function
 * `colors.wikia` - template utility for accessing CSS colors
 * `colors.css` - template utility for FANDOM CSS $parameter support
 * `colors.text` - template utility for high contrast text colors
