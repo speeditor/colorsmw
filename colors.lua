@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module              c
--- @version             2.3.1
+-- @version             2.4.0
 -- @usage               require("Dev:Colors")
 -- @author              Speedit
 -- @release             stable; unit tests passed
@@ -77,17 +77,13 @@ function Color.new(self, tup, typ, alp)
         error(i18n:msg('invalid-type', typ))
     end
     -- Validate color tuple numbers.
-    for i, n in ipairs(tup) do
-        if i == 1 and typ == 'hsl' then
-            check('hue', n)
-        else
-            check(typ, n)
-        end
+    for n = 1, 3 do
+        check( (n == 1 and typ == 'hsl') and 'hue' or typ, tup[n])
     end
     check('hsl', alp)
     -- Initialise properties.
     o.tup = tup
-    o.typ  = typ
+    o.typ = typ
     o.alp = alp
     return o -- output
 end
@@ -145,10 +141,6 @@ end
 
 -- Color property getter-setter.
 for i, p in ipairs(registry.props) do
-    -- Property settings.
-    local n = 1 + (i - 1) % 3
-    local typ = i < 4 and 'rgb' or 'hsl'
-    local chk = i == 4 and 'hue' or typ
     -- @name        Color:red
     -- @param       {number} val Red value to set.         1 - 255
     -- @name        Color:green
@@ -163,6 +155,11 @@ for i, p in ipairs(registry.props) do
     -- @param       {number} val Luminosity value to set.  0 - 100
     -- @return      {table} Color instance.
     Color[p] = function(self, val)
+        -- Property settings.
+        local n = 1 + (i - 1) % 3
+        local typ = i < 4 and 'rgb' or 'hsl'
+        local chk = i == 4 and 'hue' or typ
+        -- Setter-getter.
         local this = clone(self, typ)
         if val then
             -- Value processing.
@@ -196,11 +193,6 @@ end
 
 -- Post-processing operators for web color properties.
 for i, o in ipairs(registry.ops) do
-    -- Operator settings.
-    local div = o == 'rotate' and 1 or 100
-    local chk = o == 'rotate' and 'degree' or 'percentage'
-    local cap = o == 'rotate' and circle or limit
-    local max = o == 'rotate' and 360 or 1
     -- @name        Color:rotate
     -- @param       {number} mod Modifier -360 - 360
     -- @name        Color:saturate
@@ -209,6 +201,12 @@ for i, o in ipairs(registry.ops) do
     -- @param       {number} mod Modifier -100 - 100
     -- @return      {table} Color instance.
     Color[o] = function(self, mod)
+        -- Operator settings.
+        local div = o == 'rotate' and 1 or 100
+        local chk = o == 'rotate' and 'degree' or 'percentage'
+        local cap = o == 'rotate' and circle or limit
+        local max = o == 'rotate' and 360 or 1
+        -- Color rotation.
         check(chk, mod)
         local this = clone(self, 'hsl')
         this.tup[i] = cap(this.tup[i] + (mod / div), max)
