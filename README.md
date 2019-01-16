@@ -1,12 +1,20 @@
 [![GitHub release](https://img.shields.io/github/release/speeditor/colorsmw/all.svg?style=flat-square&longCache=true)](https://github.com/speeditor/colorsmw/releases) [![Lua](https://img.shields.io/badge/lua%20-5.1.5-blue.svg?style=flat-square&longCache=true)](https://dev.wikia.com/wiki/Lua_reference_manual) [![UnitTests](https://img.shields.io/badge/unit%20tests-passing-green.svg?style=flat-square&longCache=true)](https://dev.wikia.com/wiki/Module_talk:Colors/testcases)
 
 # colorsmw
-Scribunto library for embedded color processing in the FANDOM environment ([extended documentation](https://dev.wikia.com/wiki/Global_Lua_Modules/Colors)).
+Scribunto library for embedded color processing in the Fandom environment ([extended documentation](https://dev.wikia.com/wiki/Global_Lua_Modules/Colors)).
 
 This Lua project is a **direct port** of https://dev.wikia.com/wiki/Colors (a JavaScript library by Pecoes), with support for alpha values.
 
 A full author history of the original JS library is here:
 >https://dev.wikia.com/wiki/MediaWiki:Colors/code.js?action=history
+
+## Installation
+* If you are on Fandom, see the [Dev Wiki installation guidance](http://dev.wikia.com/wiki/Global_Lua_Modules/Colors#Installation).
+* If you are on a external MediaWiki instance:
+  1. Create **Module:Colors** with the contents of `colors.lua`.
+  2. Create **Module:Colors/testcases** with the contents of `tests.lua`.
+  3. Create **Template:Colors** with the contents of `colors.mediawiki`.
+  4. Create **Template:Colors/doc** with the contents of `docs.mediawiki`.
 
 ## Usage
 ```lua
@@ -17,13 +25,14 @@ local colors = require("Dev:Colors")
 The following keys are exposed in the module package:
 * `colors.main` - template wrapper function
 * `colors.wikia` - template utility for accessing CSS colors
-* `colors.css` - template utility for FANDOM CSS $parameter support
+* `colors.css` - template utility for Fandom CSS $parameter support
 * `colors.text` - template utility for high contrast text colors
+* `colors.variables` - template utility for CSS variables stylesheet generation
 * `colors.fromRgb` - color item creation from RGB tuple
 * `colors.fromHsl` - color item creation from HSL tuple
 * `colors.parse` - color parsing of any valid [CSS color](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value) string
 * `colors.instance` - color instance test
-* `colors.params` - table of FANDOM SASS colors for Lua modules
+* `colors.params` - table of Fandom SASS colors for Lua modules
 
 ***Example usage on a wiki:***
 ```mediawiki
