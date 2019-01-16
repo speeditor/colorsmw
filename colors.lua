@@ -1,7 +1,7 @@
 -- Colors library for embedded color processing on FANDOM.
 -- Supports HSL, RGB and hexadecimal web colors.
 -- @module              c
--- @version             2.4.0
+-- @version             2.5.0
 -- @usage               require("Dev:Colors")
 -- @author              Speedit
 -- @release             stable; unit tests passed
@@ -53,7 +53,7 @@ local registry = {
 
 -- Color item class.
 -- @type                Color
-local Color = { tup = {}, typ = '', alp = 1, __type = 'color' }
+local Color = { tup = {}, typ = 'color', alp = 1 }
 
 -- Color instance constructor.
 -- @function          Color:new
@@ -596,13 +596,7 @@ function c.instance(item)
     -- Prototype to compare.
     local i = getmetatable(item)
     -- Test if item has a prototype.
-    if i then
-        -- Internal type test.
-	    return (i.__type == 'color')
-	else
-	    -- String (can't be color instance).
-	    return false
-	end
+    return i and i.typ == 'color' or false
 end
 
 -- Color SASS parameter access utility for templating.
@@ -617,14 +611,14 @@ function c.wikia(frame)
     end
     -- Frame arguments.
     local key = mw.text.trim(frame.args[1])
-    local val = 
+    local val =
         -- Assign custom parameter value.
         c.params and c.params[key] and
             c.params[key]
         -- Assign default parameter value.
         or  sassParams[key] and
             sassParams[key]
-        or ''
+        or '<Dev:Colors: ' .. i18n:msg('invalid-param') .. '>'
     return mw.text.trim(val)
 end
 
@@ -677,6 +671,52 @@ function c.text(frame)
     return b and clr[1] or clr[2]
 end
 
+-- CSS variables stylesheet generator.
+-- @param               {table} frame Frame invocation object.
+-- @param               {table} frame.args.s Optional number of spaces.
+function c.variables(frame)
+    local s = frame.args.s
+    local m = s ~= nil
+    local n = tonumber(s)
+
+    local sep = (m and n) and '\n' or ' '
+    local ind = (m and n) and string.rep(' ', n) or ''
+    local prm = c.params
+
+    local ret = {}
+
+    local sortkeys = {}
+    for k, p in pairs(prm) do
+        table.insert(sortkeys, k)
+    end
+    table.sort(sortkeys)
+
+    table.insert(ret, ':root {')
+    for i, k in ipairs(sortkeys) do
+        local val = prm[k]
+        if
+            tostring(val) ~= 'false' and
+            tostring(val) ~= 'true'
+        then
+            if tonumber(val) ~= nil then
+                val = tostring(val) .. 'px'
+            elseif #mw.text.trim(val) == 0 then
+                val = '""'
+            end
+
+            local prop = table.concat({
+                ind,
+                '--', k, ': ',
+                val, ';'
+            })
+            table.insert(ret, prop)
+        end
+    end
+    table.insert(ret, '}')
+
+    return table.concat(ret, sep)
+end
+
 -- Template wrapper for [[Template:Colors]].
 -- @param               {table} frame Frame invocation object.
 -- @usage               {{#invoke:colors|main}}
@@ -704,6 +744,7 @@ end
 
 -- FANDOM color parameters (common SASS colors).
 -- @name                c.params
+-- @usage               colors.params['key']
 c.params = (function(p)
     -- Remove the unneeded parameters.
     local ext_params = {
@@ -751,7 +792,7 @@ c.params = (function(p)
     p['dropdown-menu-highlight'] = c.parse('$color-links'):alpha(10):rgb()
     --- Custom SASS parameters.
     p['is-dark-wiki'] = not page_bright
-    -- Export SASS parameter table from SEFE.
+    -- Export SASS parameter table.
     return p
 end)(sassParams)
 

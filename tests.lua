@@ -119,13 +119,23 @@ return {
             { 'yellow|lum=true', '#000000' },
         }
     },
+    variables = {
+        options = {
+            mode = 'invocation',
+            nowiki = true
+        },
+        tests = {
+            { nil, ':root { --background-image: ""; --background-image-height: 168px; --background-image-width: 271px; --color-body: #f6f6f6; --color-body-middle: #bacdd8; --color-button-highlight: #666e79; --color-button-text: #ffffff; --color-buttons: #404a57; --color-community-header: #404a57; --color-community-header-text: #ffffff; --color-contrast: #000000; --color-header: #404a57; --color-links: #009bbe; --color-page: #ffffff; --color-page-border: #cccccc; --color-text: #3a3a3a; --dropdown-background-color: #ffffff; --dropdown-menu-highlight: rgba(0, 155, 190, 0.1); --infobox-background: #e6f5f9; --infobox-section-header-background: #bfe6ef; --wordmark-font: cpmono; }' },
+            { 's = 4', ':root {\n    --background-image: "";\n    --background-image-height: 168px;\n    --background-image-width: 271px;\n    --color-body: #f6f6f6;\n    --color-body-middle: #bacdd8;\n    --color-button-highlight: #666e79;\n    --color-button-text: #ffffff;\n    --color-buttons: #404a57;\n    --color-community-header: #404a57;\n    --color-community-header-text: #ffffff;\n    --color-contrast: #000000;\n    --color-header: #404a57;\n    --color-links: #009bbe;\n    --color-page: #ffffff;\n    --color-page-border: #cccccc;\n    --color-text: #3a3a3a;\n    --dropdown-background-color: #ffffff;\n    --dropdown-menu-highlight: rgba(0, 155, 190, 0.1);\n    --infobox-background: #e6f5f9;\n    --infobox-section-header-background: #bfe6ef;\n    --wordmark-font: cpmono;\n}' }
+        }
+    },
     main = {
         options = {
             mode = 'invocation',
             nowiki = true
         },
         tests = {
-            { nil, 'Script error: You must specify a function to call.', { ['err'] = true } },
+            { nil, 'you must specify a function to call', { ['err'] = true } },
         }
     }
 }
