@@ -1,0 +1,19 @@
+; Description
+: This template implements the [[w:c:dev:Global Lua Modules/Colors|Colors]] module, allowing color processing in templates and articles.
+; Syntax
+: {{t|colors|function|param1|param2}}
+; Usage - <code>wikia</code> function
+: Input: <span class="code">{{t|colors|wikia|dropdown-menu-highlight}}</span>
+: Output: <code>{{colors|wikia|dropdown-menu-highlight}}</code>
+; Usage - <code>css</code> function
+: Input: <span class="code">{{t|colors|css|background-color: $color-community-header; color: $color-community-header-text;}}</span>
+: Output: <code>{{colors|css|background-color: $color-community-header; color: $color-community-header-text;}}</code>
+; Usage - <code>text</code> function
+: Input: <span class="code">{{t|colors|text|$color-community-header|#0f0f0f|#f0f0f0}}</span>
+: Output: <code><nowiki>#</nowiki>{{#replace:{{colors|text|$color-community-header|#0f0f0f|#f0f0f0}}|#}}</code>
+; Usage - <code>variables</code> function
+: Input: <span class="code">{{t|colors|variables|s = 4}}</span>
+: Output:
+{{#tag:pre|{{colors|variables|s = 4}}}}
+<includeonly>[[Category:Templates]]</includeonly>
+<noinclude>[[Category:Template documentation]]</noinclude>
