@@ -7,7 +7,14 @@ return {
     license = 'CC-BY-SA 3.0',
     tags = {'mediawiki', 'fandom', 'lua', 'colors'},
     contributors = {
-        'DarthKitty <https://dev.wikia.com/wiki/User:DarthKitty>'
+        -- code contributors
+        'DarthKitty <https://dev.wikia.com/wiki/User:DarthKitty>',
+        'Technobliterator <https://dev.wikia.com/wiki/User:Technobliterator>',
+        -- translations
+        'Tokina8937 <https://dev.wikia.com/wiki/User:Tokina8937>',
+        'Laclale <https://dev.wikia.com/wiki/User:Laclale>',
+        'Mix Gerder <https://dev.wikia.com/wiki/User:DarthKitty>',
+        'Quentum <https://dev.wikia.com/wiki/User:Quentum>'
     },
     dependencies = {
         ['Scribunto']   = 'https://github.com/wikimedia/mediawiki-extensions-Scribunto',
